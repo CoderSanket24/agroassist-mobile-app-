@@ -2,15 +2,19 @@ import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { Colors } from "../constants/Colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleLogin = () => {
-    // ✅ For now, no backend — just go to tabs
-    router.replace("/(tabs)");
+  const handleLogin = async () => {
+    // ✅ For now, accept any phone/password
+    if (phone && password) {
+      await AsyncStorage.setItem("user", JSON.stringify({ phone }));
+      router.replace("/(tabs)");
+    }
   };
 
   return (
@@ -33,9 +37,6 @@ export default function LoginScreen() {
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
-      <Text style={styles.signupText}>
-        Don’t have an account? (Signup coming soon)
-      </Text>
     </View>
   );
 }
@@ -46,5 +47,4 @@ const styles = StyleSheet.create({
   input: { width: "90%", borderWidth: 1, borderColor: Colors.primary, padding: 12, borderRadius: 10, marginBottom: 15, backgroundColor: Colors.white },
   button: { backgroundColor: Colors.primary, padding: 15, borderRadius: 12, width: "90%", alignItems: "center", marginTop: 10 },
   buttonText: { fontSize: 18, fontWeight: "bold", color: Colors.white },
-  signupText: { marginTop: 15, fontSize: 14, color: "gray" },
 });
