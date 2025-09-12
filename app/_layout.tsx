@@ -1,24 +1,30 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Colors } from "../constants/Colors";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+    <>
+      <StatusBar style="light" backgroundColor={Colors.primary} />
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: Colors.primary },
+          headerTintColor: Colors.white,
+          headerTitleStyle: { fontWeight: "bold" },
+        }}
+      >
+        {/* Login screen first */}
+        <Stack.Screen
+          name="login"
+          options={{ title: "Farmer Login", headerShown: false }}
+        />
+        
+        {/* Tabs after login */}
+        <Stack.Screen
+          name="(tabs)"
+          options={{ headerShown: false }}
+        />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    </>
   );
 }
