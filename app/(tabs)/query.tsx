@@ -2,15 +2,16 @@ import { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, FlatList, StyleSheet } from "react-native";
 import { Colors } from "../../constants/Colors";
 import { askQuery, fetchQueries } from "@/services/query";
+import { formatDate } from "@/utils/date";
 
 export default function QueryScreen() {
   const [query, setQuery] = useState("");
-  const [history, setHistory] = useState<{ q: string; a: string }[]>([]);
+  const [history, setHistory] = useState<{ q: string; a: string, time: string }[]>([]);
 
   useEffect(() => {
     const loadHistory = async () => {
       const res = await fetchQueries();
-      setHistory(res.map((item: any) => ({ q: item.question, a: item.answer })));
+      setHistory(res.map((item: any) => ({ q: item.question, a: item.answer, time: formatDate(item.created_at) })));
     };
     loadHistory();
   }, []);
@@ -20,9 +21,9 @@ export default function QueryScreen() {
 
     try {
       const res = await askQuery(query);
-      setHistory([{ q: query, a: res.answer }, ...history]);
+      setHistory([{ q: query, a: res.answer, time: formatDate(res.created_at) }, ...history]);
     } catch (err) {
-      setHistory([{ q: query, a: "Failed to fetch answer." }, ...history]);
+      setHistory([{ q: query, a: "Failed to fetch answer.", time:formatDate(new Date().toISOString()) }, ...history]);
     }
 
     setQuery("");
@@ -49,6 +50,7 @@ export default function QueryScreen() {
           <View style={styles.chatBox}>
             <Text style={styles.query}>👨‍🌾 {item.q}</Text>
             <Text style={styles.answer}>🤖 {item.a}</Text>
+            <Text style={styles.timestamp}>{item.time}</Text>
           </View>
         )}
       />
@@ -75,4 +77,5 @@ const styles = StyleSheet.create({
   },
   query: { fontWeight: "bold", marginBottom: 5 },
   answer: { color: Colors.text },
+  timestamp: { fontSize: 12, color: "#666", textAlign: "right" },
 });
