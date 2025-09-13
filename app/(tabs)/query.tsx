@@ -1,25 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, FlatList, StyleSheet } from "react-native";
 import { Colors } from "../../constants/Colors";
-import { askQuery } from "@/services/query";
+import { askQuery, fetchQueries } from "@/services/query";
 
 export default function QueryScreen() {
   const [query, setQuery] = useState("");
   const [history, setHistory] = useState<{ q: string; a: string }[]>([]);
 
+  useEffect(() => {
+    const loadHistory = async () => {
+      const res = await fetchQueries();
+      setHistory(res.map((item: any) => ({ q: item.question, a: item.answer })));
+    };
+    loadHistory();
+  }, []);
+
   const handleSend = async () => {
     if (!query.trim()) return;
 
-    // // 🔹 For now, just mock response
-    // const fakeAnswer = "This is sample advice. Backend will give real response.";
-    // setHistory([{ q: query, a: fakeAnswer }, ...history]);
-    // setQuery("");
-    
     try {
       const res = await askQuery(query);
       setHistory([{ q: query, a: res.answer }, ...history]);
     } catch (err) {
-      setHistory([{ q: query, a: "Failed to fetch answer. Please try again." }, ...history]);
+      setHistory([{ q: query, a: "Failed to fetch answer." }, ...history]);
     }
 
     setQuery("");

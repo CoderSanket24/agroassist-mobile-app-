@@ -12,3 +12,13 @@ export const askQuery = async (question: string) => {
     throw error;
   }
 };
+
+export const fetchQueries = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/queries`);
+    return response.data; // array of queries
+  } catch (error) {
+    console.error("Error in fetchQueries:", error);
+    throw error;
+  }
+};
