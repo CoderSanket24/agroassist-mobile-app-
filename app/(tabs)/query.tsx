@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, Text, TextInput, Button, FlatList, StyleSheet } from "react-native";
 import { Colors } from "../../constants/Colors";
+import { askQuery } from "@/services/query";
 
 export default function QueryScreen() {
   const [query, setQuery] = useState("");
@@ -9,10 +10,18 @@ export default function QueryScreen() {
   const handleSend = async () => {
     if (!query.trim()) return;
 
-    // 🔹 For now, just mock response
-    const fakeAnswer = "This is sample advice. Backend will give real response.";
+    // // 🔹 For now, just mock response
+    // const fakeAnswer = "This is sample advice. Backend will give real response.";
+    // setHistory([{ q: query, a: fakeAnswer }, ...history]);
+    // setQuery("");
+    
+    try {
+      const res = await askQuery(query);
+      setHistory([{ q: query, a: res.answer }, ...history]);
+    } catch (err) {
+      setHistory([{ q: query, a: "Failed to fetch answer. Please try again." }, ...history]);
+    }
 
-    setHistory([{ q: query, a: fakeAnswer }, ...history]);
     setQuery("");
   };
 
