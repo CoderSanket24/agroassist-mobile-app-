@@ -1,23 +1,42 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { 
   View, 
   Text, 
   TextInput, 
   TouchableOpacity, 
-  ScrollView, 
   StyleSheet, 
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Alert
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
-import { askQuery, fetchQueries } from "@/services/query";
+import { askQuery, fetchQueries, speechToText, getSupportedLanguages } from "@/services/query";
 import { formatDate } from "@/utils/date";
 import { Colors } from "../../constants/Colors";
 import ChatHistory from "@/components/ChatHistory";
-import * as Speech from 'expo-speech';
 import { Audio } from 'expo-av';
+
+// Default languages as fallback
+const DEFAULT_LANGUAGES = {
+  'en': 'en-IN',    // English (India)
+  'hi': 'hi-IN',    // Hindi
+  'mr': 'mr-IN',    // Marathi
+  'ta': 'ta-IN',    // Tamil
+  'te': 'te-IN',    // Telugu
+  'kn': 'kn-IN',    // Kannada
+};
+
+// Define TypeScript interfaces
+interface LanguageMap {
+  [key: string]: string;
+}
+
+interface SpeechToTextResult {
+  text: string;
+  success: boolean;
+}
 
 export default function QueryScreen() {
   const [query, setQuery] = useState("");
@@ -26,10 +45,26 @@ export default function QueryScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [permissionResponse, requestPermission] = Audio.usePermissions();
+  const [languages, setLanguages] = useState<LanguageMap>({});
+  const [selectedLanguage, setSelectedLanguage] = useState('en-IN');
 
   useEffect(() => {
     loadHistory();
+    loadLanguages();
   }, []);
+
+  const loadLanguages = async () => {
+    try {
+      const result = await getSupportedLanguages();
+      if (result && result.languages) {
+        setLanguages(result.languages);
+      }
+    } catch (error) {
+      console.warn('Using default languages due to network error:', error);
+      // Continue with default languages - this is not a critical error
+      setLanguages(DEFAULT_LANGUAGES);
+    }
+  };
 
   const loadHistory = async () => {
     try {
@@ -44,7 +79,6 @@ export default function QueryScreen() {
     }
   };
 
-  // Voice Recording Functions
   const startRecording = async () => {
     try {
       if (permissionResponse?.status !== 'granted') {
@@ -62,7 +96,6 @@ export default function QueryScreen() {
       setRecording(recording);
       setIsRecording(true);
     } catch (err) {
-      console.error('Failed to start recording', err);
       Alert.alert('Error', 'Cannot start recording. Please check microphone permissions.');
     }
   };
@@ -70,35 +103,39 @@ export default function QueryScreen() {
   const stopRecording = async () => {
     try {
       setIsRecording(false);
-      setRecording(null);
-      await recording!.stopAndUnloadAsync();
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-      });
+      if (recording) {
+        await recording.stopAndUnloadAsync();
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+        });
 
-      // Here you would send the audio to your backend for speech-to-text
-      // For now, we'll simulate this process
-      simulateSpeechToText();
-      
+        const uri = recording.getURI();
+        if (uri) {
+          await processAudioRecording(uri);
+        }
+      }
     } catch (err) {
-      console.error('Failed to stop recording', err);
+      Alert.alert('Error', 'Failed to process recording.');
+    } finally {
+      setRecording(null);
     }
   };
 
-  const simulateSpeechToText = () => {
-    // Simulate API call to speech-to-text service
+  const processAudioRecording = async (uri: string) => {
     setIsLoading(true);
-    setTimeout(() => {
-      const sampleResponses = [
-        "My wheat plants have yellow spots on leaves, what should I do?",
-        "How much fertilizer for tomato plants?",
-        "When is the best time to harvest rice?",
-        "My crops are not growing well, need advice"
-      ];
-      const randomQuery = sampleResponses[Math.floor(Math.random() * sampleResponses.length)];
-      setQuery(randomQuery);
+    try {
+      const result: SpeechToTextResult = await speechToText(uri, selectedLanguage);
+      if (result.success) {
+        setQuery(result.text);
+      } else {
+        Alert.alert('Error', 'Could not understand speech. Please try again.');
+      }
+    } catch (error) {
+      console.error('Audio processing error:', error);
+      Alert.alert('Error', 'Failed to convert speech to text. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleSend = async () => {
@@ -108,29 +145,15 @@ export default function QueryScreen() {
     const timestamp = formatDate(new Date().toISOString());
     const userQuery = query;
 
-    // Add user message immediately
     setHistory([{ q: userQuery, a: "Thinking...", time: timestamp }, ...history]);
     setQuery("");
 
     try {
-      // Send to your FastAPI backend
       const res = await askQuery(userQuery);
-      
-      // Replace the "Thinking..." message with actual response
       setHistory(prev => [
         { q: userQuery, a: res.answer, time: formatDate(res.created_at) },
         ...prev.filter(item => item.a !== "Thinking...")
       ]);
-
-      // Optional: Read response aloud
-      if (res.answer) {
-        Speech.speak(res.answer, {
-          language: 'en', // Change based on user's language
-          pitch: 1.0,
-          rate: 0.8
-        });
-      }
-
     } catch (err) {
       setHistory(prev => [
         { q: userQuery, a: "Sorry, I couldn't process your request. Please try again.", time: timestamp },
@@ -152,7 +175,28 @@ export default function QueryScreen() {
       keyboardVerticalOffset={90}
     >
       <Text style={styles.title}>Ask Your Farming Question 🌱</Text>
-      
+
+      {/* Language Selector */}
+      <View style={styles.languageSelector}>
+        <Text style={styles.languageLabel}>Language:</Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={selectedLanguage}
+            style={styles.picker}
+            onValueChange={(itemValue: string) => setSelectedLanguage(itemValue)}
+            dropdownIconColor={Colors.primary}
+          >
+            {Object.entries(languages).map(([code, googleCode]) => (
+              <Picker.Item 
+                key={code} 
+                label={code.toUpperCase()} 
+                value={googleCode} 
+              />
+            ))}
+          </Picker>
+        </View>
+      </View>
+
       {/* Input Area */}
       <View style={styles.inputContainer}>
         <TextInput
@@ -217,7 +261,7 @@ export default function QueryScreen() {
       {/* Chat History */}
       <View style={styles.historyContainer}>
         <Text style={styles.historyTitle}>Recent Queries</Text>
-          <ChatHistory history={history} />
+        <ChatHistory history={history} />
       </View>
     </KeyboardAvoidingView>
   );
@@ -235,6 +279,30 @@ const styles = StyleSheet.create({
     marginBottom: 20, 
     color: Colors.primary,
     textAlign: "center"
+  },
+  languageSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+    backgroundColor: Colors.white,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  languageLabel: {
+    marginRight: 10,
+    color: Colors.text,
+    fontWeight: '500',
+  },
+  pickerContainer: {
+    flex: 1,
+    borderWidth: 0,
+  },
+  picker: {
+    height: 40,
+    width: '100%',
+    color: Colors.text,
   },
   inputContainer: {
     flexDirection: "row",
@@ -308,14 +376,12 @@ const styles = StyleSheet.create({
   },
   historyContainer: {
     flex: 1,
+    marginTop: 20,
   },
   historyTitle: {
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 12,
     color: Colors.text,
-  },
-  historyScroll: {
-    flex: 1,
   },
 });
