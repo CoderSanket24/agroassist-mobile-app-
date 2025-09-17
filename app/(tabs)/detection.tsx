@@ -32,6 +32,7 @@ export default function DetectionScreen() {
     treatment?: string;
     prevention?: string;
     organic?: string;
+    symptoms?: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -89,15 +90,6 @@ export default function DetectionScreen() {
 
     setLoading(true);
     setError(null);
-    
-    // For demo purposes, we'll use mock data
-    // Remove this setTimeout when your API is ready
-    // setTimeout(() => {
-    //   setResult(MOCK_DISEASE_DATA);
-    //   setLoading(false);
-    // }, 2000);
-
-    // Uncomment this when your API is ready
     
     const formData = new FormData();
     formData.append("file", {
@@ -219,6 +211,13 @@ export default function DetectionScreen() {
               <View style={styles.infoSection}>
                 <Text style={styles.sectionTitle}>Organic Solution</Text>
                 <Text style={styles.sectionText}>{result.organic}</Text>
+              </View>
+            )}
+
+            {result.symptoms && (
+              <View style={styles.infoSection}>
+                <Text style={styles.sectionTitle}>Symptoms</Text>
+                <Text style={styles.sectionText}>{result.symptoms}</Text>
               </View>
             )}
           </View>
