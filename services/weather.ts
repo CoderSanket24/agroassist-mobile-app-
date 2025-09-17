@@ -17,6 +17,9 @@ export const getWeatherByCoords = async (lat: number, lon: number) => {
       desc: response.data.weather[0].description,
       icon: response.data.weather[0].icon,
       name: response.data.name,
+      humidity: response.data.main.humidity,
+      pressure: response.data.main.pressure,
+      windSpeed: response.data.wind.speed,
     };
   } catch (error) {
     console.error("Current Weather Error:", error);

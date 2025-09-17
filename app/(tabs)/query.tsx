@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
   },
   picker: {
-    height: 40,
+    height: 50,
     width: '100%',
     color: Colors.text,
   },
