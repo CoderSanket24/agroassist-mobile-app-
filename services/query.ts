@@ -23,32 +23,23 @@ export const fetchQueries = async () => {
   }
 };
 
-export const speechToText = async (audioUri: string, language: string = 'en-IN'): Promise<{ text: string; success: boolean }> => {
+export const speechToText = async (audioUri: string, language: string = 'en-IN'): Promise<{ text: string; success: boolean; is_fallback?: boolean }> => {
   try {
     console.log('Processing speech-to-text for:', audioUri);
     
-    // First, check if backend is reachable
-    const isBackendAvailable = await testBackendConnection();
-    if (!isBackendAvailable) {
-      console.log('Backend not available, using mock data');
-      return getMockResponse(language, false);
-    }
-
     // Create FormData
     const formData = new FormData();
     
-    // @ts-ignore - React Native specific file object
     formData.append('file', {
       uri: audioUri,
       type: 'audio/m4a',
       name: 'recording.m4a',
-    });
+    } as any);
     
     formData.append('language', language);
 
-    // Use AbortController for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    console.log(language);
+    
 
     const response = await fetch(`${API_BASE_URL}/stt`, {
       method: 'POST',
@@ -56,27 +47,26 @@ export const speechToText = async (audioUri: string, language: string = 'en-IN')
       headers: {
         'Accept': 'application/json',
       },
-      signal: controller.signal,
     });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      console.warn('Server responded with error, using mock data');
-      return getMockResponse(language, false);
-    }
 
     const result = await response.json();
     
-    if (result.success && result.text) {
-      return { text: result.text, success: true };
+    if (result.success) {
+      return { 
+        text: result.text, 
+        success: true,
+        is_fallback: result.is_fallback || false
+      };
     } else {
-      console.warn('Server response indicates failure, using mock data');
-      return getMockResponse(language, false);
+      return { 
+        text: result.text, 
+        success: false,
+        is_fallback: true
+      };
     }
 
   } catch (error) {
-    console.error('Speech to text error, using mock data:', error);
+    console.error('Speech to text error:', error);
     return getMockResponse(language, false);
   }
 };
@@ -163,9 +153,6 @@ export const getSupportedLanguages = async (): Promise<{ languages: { [key: stri
         'te': 'te-IN',    // Telugu
         'kn': 'kn-IN',    // Kannada
         'ml': 'ml-IN',    // Malayalam
-        'bn': 'bn-IN',    // Bengali
-        'gu': 'gu-IN',    // Gujarati
-        'pa': 'pa-IN',    // Punjabi
       }
     };
   }

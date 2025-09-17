@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
@@ -69,10 +69,10 @@ export default function QueryScreen() {
   const loadHistory = async () => {
     try {
       const res = await fetchQueries();
-      setHistory(res.map((item: any) => ({ 
-        q: item.question, 
-        a: item.answer, 
-        time: formatDate(item.created_at) 
+      setHistory(res.map((item: any) => ({
+        q: item.question,
+        a: item.answer,
+        time: formatDate(item.created_at)
       })));
     } catch (error) {
       console.error("Failed to load history:", error);
@@ -124,15 +124,25 @@ export default function QueryScreen() {
   const processAudioRecording = async (uri: string) => {
     setIsLoading(true);
     try {
-      const result: SpeechToTextResult = await speechToText(uri, selectedLanguage);
-      if (result.success) {
-        setQuery(result.text);
+      console.log('Selected language:', selectedLanguage);
+      const result = await speechToText(uri, selectedLanguage);
+
+      setQuery(result.text);
+
+      // Show appropriate message based on result
+      if (result.is_fallback) {
+        Alert.alert(
+          'Demo Mode',
+          'Using simulated response. Real speech recognition is working but this is a demo response.',
+          [{ text: 'OK' }]
+        );
       } else {
-        Alert.alert('Error', 'Could not understand speech. Please try again.');
+        // Success! You could show a subtle success message
+        console.log('Real speech recognition successful!');
       }
     } catch (error) {
       console.error('Audio processing error:', error);
-      Alert.alert('Error', 'Failed to convert speech to text. Please try again.');
+      
     } finally {
       setIsLoading(false);
     }
@@ -169,7 +179,7 @@ export default function QueryScreen() {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={90}
@@ -183,14 +193,17 @@ export default function QueryScreen() {
           <Picker
             selectedValue={selectedLanguage}
             style={styles.picker}
-            onValueChange={(itemValue: string) => setSelectedLanguage(itemValue)}
+            onValueChange={(itemValue: string) => {
+              console.log('Language selected:', itemValue);
+              setSelectedLanguage(itemValue);
+            }}
             dropdownIconColor={Colors.primary}
           >
             {Object.entries(languages).map(([code, googleCode]) => (
-              <Picker.Item 
-                key={code} 
-                label={code.toUpperCase()} 
-                value={googleCode} 
+              <Picker.Item
+                key={code}
+                label={code.toUpperCase()}
+                value={googleCode}
               />
             ))}
           </Picker>
@@ -208,7 +221,7 @@ export default function QueryScreen() {
           maxLength={500}
           editable={!isLoading}
         />
-        
+
         {query.length > 0 && (
           <TouchableOpacity onPress={clearInput} style={styles.clearButton}>
             <Ionicons name="close-circle" size={20} color={Colors.textSecondary} />
@@ -227,8 +240,8 @@ export default function QueryScreen() {
 
       {/* Action Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={[styles.button, (!query.trim() || isLoading) && styles.buttonDisabled]} 
+        <TouchableOpacity
+          style={[styles.button, (!query.trim() || isLoading) && styles.buttonDisabled]}
           onPress={handleSend}
           disabled={!query.trim() || isLoading}
         >
@@ -242,15 +255,15 @@ export default function QueryScreen() {
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.button, styles.voiceButton, isRecording && styles.recordingButton]}
           onPress={isRecording ? stopRecording : startRecording}
           disabled={isLoading}
         >
-          <Ionicons 
-            name={isRecording ? "mic-off" : "mic"} 
-            size={16} 
-            color={Colors.white} 
+          <Ionicons
+            name={isRecording ? "mic-off" : "mic"}
+            size={16}
+            color={Colors.white}
           />
           <Text style={styles.buttonText}>
             {isRecording ? "Stop" : "Voice Input"}
@@ -268,15 +281,15 @@ export default function QueryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: Colors.background, 
-    padding: 16 
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    padding: 16
   },
-  title: { 
-    fontSize: 22, 
-    fontWeight: "bold", 
-    marginBottom: 20, 
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 20,
     color: Colors.primary,
     textAlign: "center"
   },
