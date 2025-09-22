@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.codersanket.agroassist"
     },
     "web": {
       "output": "static",
@@ -43,6 +44,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "OPENWEATHER_API_KEY": "2ff17fc7270927e3172d69b2c6eb0eed",
+      "router": {},
+      "eas": {
+        "projectId": "2efcd939-0431-4af3-9b3c-1bfb9fb493ea"
+      }
     }
   }
 }
