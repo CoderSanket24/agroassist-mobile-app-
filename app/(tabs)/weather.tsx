@@ -130,7 +130,7 @@ export default function WeatherScreen() {
             styles.weatherCard,
             { backgroundColor: getWeatherBackground(weather.desc) }
           ]}>
-            <Text style={styles.locationName}>Pune</Text>
+            <Text style={styles.locationName}>{weather.name}</Text>
             <View style={styles.currentWeather}>
               <View style={styles.temperatureContainer}>
                 <Text style={styles.temperature}>{Math.round(weather.temp)}°</Text>
