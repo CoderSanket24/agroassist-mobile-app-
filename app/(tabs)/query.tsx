@@ -215,6 +215,7 @@ export default function QueryScreen() {
         <TextInput
           style={styles.input}
           placeholder="Type or speak your crop query..."
+          placeholderTextColor="#888"
           value={query}
           onChangeText={setQuery}
           multiline
@@ -296,9 +297,11 @@ const styles = StyleSheet.create({
   languageSelector: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 10,
     backgroundColor: Colors.white,
-    padding: 12,
+    paddingTop: 4,
+    paddingBottom: 4,
+    paddingLeft: 8,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: Colors.border,
@@ -320,7 +323,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 10,
     position: 'relative',
   },
   input: {
