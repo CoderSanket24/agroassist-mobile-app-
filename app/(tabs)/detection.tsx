@@ -9,6 +9,7 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import { Colors } from "../../constants/Colors";
@@ -121,6 +122,7 @@ export default function DetectionScreen() {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Crop Disease Detection 🌱</Text>
       <Text style={styles.subtitle}>Identify plant diseases and get treatment recommendations</Text>
@@ -229,6 +231,7 @@ export default function DetectionScreen() {
         </View>
       )}
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -249,7 +252,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     color: Colors.textSecondary,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   uploadSection: {
     alignItems: "center",

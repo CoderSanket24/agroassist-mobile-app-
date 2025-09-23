@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Colors } from "../../constants/Colors";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -12,14 +13,16 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>👤 Farmer Profile</Text>
-      <Text style={styles.text}>Manage your details and preferences here.</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
+      <View style={styles.container}>
+        <Text style={styles.title}>👤 Farmer Profile</Text>
+        <Text style={styles.text}>Manage your details and preferences here.</Text>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogout}>
-        <Text style={styles.buttonText}>Logout</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.button} onPress={handleLogout}>
+          <Text style={styles.buttonText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 

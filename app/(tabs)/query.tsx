@@ -10,6 +10,7 @@ import {
   Platform,
   Alert
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
 import { askQuery, fetchQueries, speechToText, getSupportedLanguages } from "@/services/query";
@@ -179,10 +180,10 @@ export default function QueryScreen() {
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={90}
     >
       <Text style={styles.title}>Ask Your Farming Question 🌱</Text>
 
@@ -278,6 +279,7 @@ export default function QueryScreen() {
         <ChatHistory history={history} />
       </View>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -392,12 +394,12 @@ const styles = StyleSheet.create({
   },
   historyContainer: {
     flex: 1,
-    marginTop: 20,
+    marginTop: 8,
   },
   historyTitle: {
     fontSize: 18,
     fontWeight: "600",
-    marginBottom: 12,
+    marginBottom: 8,
     color: Colors.text,
   },
 });

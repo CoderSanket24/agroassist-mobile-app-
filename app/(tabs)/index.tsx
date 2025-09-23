@@ -2,9 +2,11 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "rea
 import { Link } from "expo-router";
 import { Colors } from "../../constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>🌱 AgroAssist</Text>
@@ -62,6 +64,7 @@ export default function HomeScreen() {
         </View>
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -72,7 +75,7 @@ const styles = StyleSheet.create({
     padding: 16 
   },
   header: {
-    paddingVertical: 24,
+    paddingVertical: 20,
     alignItems: "center",
     marginBottom: 16,
   },

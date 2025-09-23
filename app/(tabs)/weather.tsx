@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   RefreshControl
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import { Colors } from "../../constants/Colors";
 import { getWeatherByCoords, getForecastByCoords } from "../../services/weather";
@@ -93,111 +94,113 @@ export default function WeatherScreen() {
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={() => handleFetchWeatherByLocation(true)}
-          colors={[Colors.primary]}
-        />
-      }
-    >
-      <View style={styles.header}>
-        <Ionicons name="partly-sunny" size={32} color={Colors.primary} />
-        <Text style={styles.title}>Weather Forecast</Text>
-        <Text style={styles.subtitle}>Get real-time weather information</Text>
-      </View>
-
-      {!weather ? (
-        <View style={styles.placeholderContainer}>
-          <Ionicons name="location-outline" size={64} color={Colors.textSecondary} />
-          <Text style={styles.placeholderText}>
-            Get current weather information for your location
-          </Text>
-          <TouchableOpacity
-            style={styles.locationButton}
-            onPress={() => handleFetchWeatherByLocation()}
-          >
-            <Ionicons name="navigate" size={20} color={Colors.white} />
-            <Text style={styles.locationButtonText}>Get My Location Weather</Text>
-          </TouchableOpacity>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => handleFetchWeatherByLocation(true)}
+            colors={[Colors.primary]}
+          />
+        }
+      >
+        <View style={styles.header}>
+          <Ionicons name="partly-sunny" size={32} color={Colors.primary} />
+          <Text style={styles.title}>Weather Forecast</Text>
+          <Text style={styles.subtitle}>Get real-time weather information</Text>
         </View>
-      ) : (
-        <>
-          {/* Current Weather Card */}
-          <View style={[
-            styles.weatherCard,
-            { backgroundColor: getWeatherBackground(weather.desc) }
-          ]}>
-            <Text style={styles.locationName}>{weather.name}</Text>
-            <View style={styles.currentWeather}>
-              <View style={styles.temperatureContainer}>
-                <Text style={styles.temperature}>{Math.round(weather.temp)}°</Text>
-                <Text style={styles.weatherDescription}>{weather.desc}</Text>
-              </View>
-              <View style={styles.weatherIconContainer}>
-                <Image
-                  source={{ uri: `https://openweathermap.org/img/wn/${weather.icon}@4x.png` }}
-                  style={styles.weatherIcon}
-                />
-              </View>
-            </View>
 
-            <View style={styles.weatherDetails}>
-              <View style={styles.detailItem}>
-                <Ionicons name="water-outline" size={20} color={Colors.primary} />
-                <Text style={styles.detailText}>{weather.humidity}%</Text>
-                <Text style={styles.detailLabel}>Humidity</Text>
-              </View>
-              <View style={styles.detailItem}>
-                <Ionicons name="speedometer-outline" size={20} color={Colors.primary} />
-                <Text style={styles.detailText}>{weather.pressure}hPa</Text>
-                <Text style={styles.detailLabel}>Pressure</Text>
-              </View>
-              <View style={styles.detailItem}>
-                <Ionicons name="flag" size={20} color={Colors.primary} />
-                <Text style={styles.detailText}>{weather.windSpeed}m/s</Text>
-                <Text style={styles.detailLabel}>Wind</Text>
-              </View>
-            </View>
+        {!weather ? (
+          <View style={styles.placeholderContainer}>
+            <Ionicons name="location-outline" size={64} color={Colors.textSecondary} />
+            <Text style={styles.placeholderText}>
+              Get current weather information for your location
+            </Text>
+            <TouchableOpacity
+              style={styles.locationButton}
+              onPress={() => handleFetchWeatherByLocation()}
+            >
+              <Ionicons name="navigate" size={20} color={Colors.white} />
+              <Text style={styles.locationButtonText}>Get My Location Weather</Text>
+            </TouchableOpacity>
           </View>
-
-          {/* Forecast Section */}
-          <Text style={styles.sectionTitle}>3-Day Forecast</Text>
-          <View style={styles.forecastContainer}>
-            {forecast.map((day, index) => (
-              <View key={index} style={styles.forecastItem}>
-                <Text style={styles.forecastDate}>{day.date}</Text>
-                <Image
-                  source={{ uri: `https://openweathermap.org/img/wn/${day.icon}@2x.png` }}
-                  style={styles.forecastIcon}
-                />
-                <View style={styles.forecastTempContainer}>
-                  <Text style={styles.forecastTemp}>{Math.round(day.temp)}°</Text>
-                  <Text style={styles.forecastDesc}>{day.desc}</Text>
+        ) : (
+          <>
+            {/* Current Weather Card */}
+            <View style={[
+              styles.weatherCard,
+              { backgroundColor: getWeatherBackground(weather.desc) }
+            ]}>
+              <Text style={styles.locationName}>{weather.name}</Text>
+              <View style={styles.currentWeather}>
+                <View style={styles.temperatureContainer}>
+                  <Text style={styles.temperature}>{Math.round(weather.temp)}°</Text>
+                  <Text style={styles.weatherDescription}>{weather.desc}</Text>
+                </View>
+                <View style={styles.weatherIconContainer}>
+                  <Image
+                    source={{ uri: `https://openweathermap.org/img/wn/${weather.icon}@4x.png` }}
+                    style={styles.weatherIcon}
+                  />
                 </View>
               </View>
-            ))}
-          </View>
 
-          {/* Farming Advice based on Weather */}
-          {weather && (
-            <View style={styles.adviceContainer}>
-              <Text style={styles.adviceTitle}>🌱 Farming Advice</Text>
-              <Text style={styles.adviceText}>
-                {weather.desc.toLowerCase().includes('rain')
-                  ? "Good time for irrigation. Consider soil moisture levels before additional watering."
-                  : weather.temp > 30
-                    ? "High temperatures detected. Ensure proper irrigation and consider shade for sensitive crops."
-                    : "Moderate weather conditions. Good time for planting and field activities."
-                }
-              </Text>
+              <View style={styles.weatherDetails}>
+                <View style={styles.detailItem}>
+                  <Ionicons name="water-outline" size={20} color={Colors.primary} />
+                  <Text style={styles.detailText}>{weather.humidity}%</Text>
+                  <Text style={styles.detailLabel}>Humidity</Text>
+                </View>
+                <View style={styles.detailItem}>
+                  <Ionicons name="speedometer-outline" size={20} color={Colors.primary} />
+                  <Text style={styles.detailText}>{weather.pressure}hPa</Text>
+                  <Text style={styles.detailLabel}>Pressure</Text>
+                </View>
+                <View style={styles.detailItem}>
+                  <Ionicons name="flag" size={20} color={Colors.primary} />
+                  <Text style={styles.detailText}>{weather.windSpeed}m/s</Text>
+                  <Text style={styles.detailLabel}>Wind</Text>
+                </View>
+              </View>
             </View>
-          )}
-        </>
-      )}
-    </ScrollView>
+
+            {/* Forecast Section */}
+            <Text style={styles.sectionTitle}>3-Day Forecast</Text>
+            <View style={styles.forecastContainer}>
+              {forecast.map((day, index) => (
+                <View key={index} style={styles.forecastItem}>
+                  <Text style={styles.forecastDate}>{day.date}</Text>
+                  <Image
+                    source={{ uri: `https://openweathermap.org/img/wn/${day.icon}@2x.png` }}
+                    style={styles.forecastIcon}
+                  />
+                  <View style={styles.forecastTempContainer}>
+                    <Text style={styles.forecastTemp}>{Math.round(day.temp)}°</Text>
+                    <Text style={styles.forecastDesc}>{day.desc}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            {/* Farming Advice based on Weather */}
+            {weather && (
+              <View style={styles.adviceContainer}>
+                <Text style={styles.adviceTitle}>🌱 Farming Advice</Text>
+                <Text style={styles.adviceText}>
+                  {weather.desc.toLowerCase().includes('rain')
+                    ? "Good time for irrigation. Consider soil moisture levels before additional watering."
+                    : weather.temp > 30
+                      ? "High temperatures detected. Ensure proper irrigation and consider shade for sensitive crops."
+                      : "Moderate weather conditions. Good time for planting and field activities."
+                  }
+                </Text>
+              </View>
+            )}
+          </>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

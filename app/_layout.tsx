@@ -30,15 +30,13 @@ export default function RootLayout() {
       <StatusBar style="light" backgroundColor={Colors.primary} />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: Colors.primary },
-          headerTintColor: Colors.white,
-          headerTitleStyle: { fontWeight: "bold" },
+          headerShown: false,
         }}
       >
         {isLoggedIn ? (
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" />
         ) : (
-          <Stack.Screen name="login" options={{ headerShown: false }} />
+          <Stack.Screen name="login" />
         )}
       </Stack>
     </>
