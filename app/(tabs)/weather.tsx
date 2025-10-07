@@ -12,8 +12,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Location from "expo-location";
-import { Colors } from "../../constants/Colors";
-import { getWeatherByCoords, getForecastByCoords } from "../../services/weather";
+import { Colors } from "@/constants/Colors";
+import { getWeatherByCoords, getForecastByCoords } from "@/services/weather";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function WeatherScreen() {

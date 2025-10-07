@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { Colors } from "../../constants/Colors";
+import { Colors } from "@/constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {

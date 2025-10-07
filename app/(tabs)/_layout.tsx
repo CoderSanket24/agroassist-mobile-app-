@@ -8,6 +8,14 @@ export default function TabLayout() {
         headerShown: false,
         tabBarActiveTintColor: "#2e7d32", // green
         tabBarInactiveTintColor: "gray",
+        tabBarStyle: {
+          paddingBottom: 5,
+          height: 60,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "500",
+        },
       }}
     >
       <Tabs.Screen
@@ -16,6 +24,15 @@ export default function TabLayout() {
           title: "Home",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="crop-recommendation"
+        options={{
+          title: "Crops",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="leaf" size={size} color={color} />
           ),
         }}
       />
@@ -52,15 +69,6 @@ export default function TabLayout() {
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="App"
-        options={{
-          title: "App",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="apps" size={size} color={color} />
           ),
         }}
       />

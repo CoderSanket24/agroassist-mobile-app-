@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
-import { Colors } from "../../constants/Colors";
+import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 
 // Mock data for demonstration (remove when your API is ready)

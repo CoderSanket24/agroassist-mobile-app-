@@ -15,7 +15,7 @@ import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
 import { askQuery, fetchQueries, speechToText, getSupportedLanguages } from "@/services/query";
 import { formatDate } from "@/utils/date";
-import { Colors } from "../../constants/Colors";
+import { Colors } from "@/constants/Colors";
 import ChatHistory from "@/components/ChatHistory";
 import { Audio } from 'expo-av';
 
