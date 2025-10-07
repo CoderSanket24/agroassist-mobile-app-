@@ -1,23 +1,24 @@
-import { useState, useEffect } from "react";
+import ChatHistory from "@/components/ChatHistory";
+import { Colors } from "@/constants/Colors";
+import { askQuery, fetchQueries, getSupportedLanguages, speechToText } from "@/services/query";
+import { formatDate } from "@/utils/date";
+import { Ionicons } from "@expo/vector-icons";
+import { Picker } from "@react-native-picker/picker";
+import { Audio } from 'expo-av';
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Alert
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Picker } from "@react-native-picker/picker";
-import { Ionicons } from "@expo/vector-icons";
-import { askQuery, fetchQueries, speechToText, getSupportedLanguages } from "@/services/query";
-import { formatDate } from "@/utils/date";
-import { Colors } from "@/constants/Colors";
-import ChatHistory from "@/components/ChatHistory";
-import { Audio } from 'expo-av';
 
 // Default languages as fallback
 const DEFAULT_LANGUAGES = {
@@ -40,6 +41,7 @@ interface SpeechToTextResult {
 }
 
 export default function QueryScreen() {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [history, setHistory] = useState<{ q: string; a: string; time: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -97,7 +99,7 @@ export default function QueryScreen() {
       setRecording(recording);
       setIsRecording(true);
     } catch (err) {
-      Alert.alert('Error', 'Cannot start recording. Please check microphone permissions.');
+      Alert.alert(t('common.error'), t('query.micPermission'));
     }
   };
 
@@ -116,7 +118,7 @@ export default function QueryScreen() {
         }
       }
     } catch (err) {
-      Alert.alert('Error', 'Failed to process recording.');
+      Alert.alert(t('common.error'), t('query.recordingFailed'));
     } finally {
       setRecording(null);
     }
@@ -132,11 +134,7 @@ export default function QueryScreen() {
 
       // Show appropriate message based on result
       if (result.is_fallback) {
-        Alert.alert(
-          'Demo Mode',
-          'Using simulated response. Real speech recognition is working but this is a demo response.',
-          [{ text: 'OK' }]
-        );
+        Alert.alert(t('query.demoTitle'), t('query.demoDesc'), [{ text: t('common.ok') }]);
       } else {
         // Success! You could show a subtle success message
         console.log('Real speech recognition successful!');
@@ -167,7 +165,7 @@ export default function QueryScreen() {
       ]);
     } catch (err) {
       setHistory(prev => [
-        { q: userQuery, a: "Sorry, I couldn't process your request. Please try again.", time: timestamp },
+        { q: userQuery, a: t('query.errorAnswer'), time: timestamp },
         ...prev.filter(item => item.a !== "Thinking...")
       ]);
     } finally {
@@ -185,11 +183,11 @@ export default function QueryScreen() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <Text style={styles.title}>Ask Your Farming Question 🌱</Text>
+      <Text style={styles.title}>{t('query.title')}</Text>
 
       {/* Language Selector */}
       <View style={styles.languageSelector}>
-        <Text style={styles.languageLabel}>Language:</Text>
+        <Text style={styles.languageLabel}>{t('query.language')}:</Text>
         <View style={styles.pickerContainer}>
           <Picker
             selectedValue={selectedLanguage}
@@ -215,7 +213,7 @@ export default function QueryScreen() {
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Type or speak your crop query..."
+          placeholder={t('query.placeholder') as string}
           placeholderTextColor="#888"
           value={query}
           onChangeText={setQuery}
@@ -236,7 +234,7 @@ export default function QueryScreen() {
         <View style={styles.recordingIndicator}>
           <View style={styles.recordingPulse} />
           <Ionicons name="mic" size={20} color={Colors.white} />
-          <Text style={styles.recordingText}>Listening... Speak now</Text>
+          <Text style={styles.recordingText}>{t('query.listening')}</Text>
         </View>
       )}
 
@@ -252,7 +250,7 @@ export default function QueryScreen() {
           ) : (
             <>
               <Ionicons name="send" size={16} color={Colors.white} />
-              <Text style={styles.buttonText}>Send Query</Text>
+              <Text style={styles.buttonText}>{t('query.send')}</Text>
             </>
           )}
         </TouchableOpacity>
@@ -268,14 +266,14 @@ export default function QueryScreen() {
             color={Colors.white}
           />
           <Text style={styles.buttonText}>
-            {isRecording ? "Stop" : "Voice Input"}
+            {isRecording ? t('query.stop') : t('query.voice')}
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* Chat History */}
       <View style={styles.historyContainer}>
-        <Text style={styles.historyTitle}>Recent Queries</Text>
+        <Text style={styles.historyTitle}>{t('query.recent')}</Text>
         <ChatHistory history={history} />
       </View>
     </KeyboardAvoidingView>

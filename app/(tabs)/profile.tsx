@@ -1,11 +1,13 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Colors } from "@/constants/Colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { Colors } from "@/constants/Colors";
+import { useTranslation } from "react-i18next";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("user");
@@ -15,11 +17,11 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
       <View style={styles.container}>
-        <Text style={styles.title}>👤 Farmer Profile</Text>
-        <Text style={styles.text}>Manage your details and preferences here.</Text>
+        <Text style={styles.title}>👤 {t('profile.title')}</Text>
+        <Text style={styles.text}>{t('profile.subtitle')}</Text>
 
         <TouchableOpacity style={styles.button} onPress={handleLogout}>
-          <Text style={styles.buttonText}>Logout</Text>
+          <Text style={styles.buttonText}>{t('profile.logout')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

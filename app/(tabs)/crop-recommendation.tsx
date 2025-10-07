@@ -1,20 +1,21 @@
+import { Colors } from "@/constants/Colors";
+import { getCropRecommendation } from "@/services/cropRecommendation";
+import { Ionicons } from "@expo/vector-icons";
+import { Picker } from "@react-native-picker/picker";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "@/constants/Colors";
-import { getCropRecommendation } from "@/services/cropRecommendation";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 
@@ -27,6 +28,7 @@ interface CropRecommendation {
 }
 
 export default function CropRecommendationScreen() {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     nitrogen: "",
     phosphorus: "",
@@ -60,7 +62,7 @@ export default function CropRecommendationScreen() {
     const requiredFields = ['nitrogen', 'phosphorus', 'potassium', 'temperature', 'humidity', 'ph', 'rainfall'];
     for (let field of requiredFields) {
       if (!formData[field as keyof typeof formData] || formData[field as keyof typeof formData] === "") {
-        Alert.alert("Error", `Please fill in ${field}`);
+        Alert.alert(t('common.error'), t('crop.formFill', { field }));
         return false;
       }
     }
@@ -75,7 +77,7 @@ export default function CropRecommendationScreen() {
       const result = await getCropRecommendation(formData);
       setRecommendation(result);
     } catch (error) {
-      Alert.alert("Error", "Failed to get crop recommendation. Please try again.");
+      Alert.alert(t('common.error'), t('crop.fetchFailed'));
       console.error(error);
     } finally {
       setLoading(false);
@@ -105,67 +107,67 @@ export default function CropRecommendationScreen() {
     >
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.title}>🌾 Crop Recommendation</Text>
-          <Text style={styles.subtitle}>Get personalized crop suggestions based on soil and climate conditions</Text>
+          <Text style={styles.title}>🌾 {t('crop.title')}</Text>
+          <Text style={styles.subtitle}>{t('crop.subtitle')}</Text>
         </View>
 
         <View style={styles.form}>
-          <Text style={styles.sectionTitle}>Soil Nutrients (kg/ha)</Text>
+          <Text style={styles.sectionTitle}>{t('crop.soilNutrients')}</Text>
           
           <View style={styles.row}>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Nitrogen (N)</Text>
+              <Text style={styles.label}>{t('crop.nitrogen')}</Text>
               <TextInput
                 style={styles.input}
                 value={formData.nitrogen}
                 onChangeText={(value) => handleInputChange("nitrogen", value)}
-                placeholder="0-140"
+                placeholder={t('crop.nRange') as string}
                 keyboardType="numeric"
               />
             </View>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Phosphorus (P)</Text>
+              <Text style={styles.label}>{t('crop.phosphorus')}</Text>
               <TextInput
                 style={styles.input}
                 value={formData.phosphorus}
                 onChangeText={(value) => handleInputChange("phosphorus", value)}
-                placeholder="5-145"
+                placeholder={t('crop.pRange') as string}
                 keyboardType="numeric"
               />
             </View>
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Potassium (K)</Text>
+            <Text style={styles.label}>{t('crop.potassium')}</Text>
             <TextInput
               style={styles.input}
               value={formData.potassium}
               onChangeText={(value) => handleInputChange("potassium", value)}
-              placeholder="5-205"
+              placeholder={t('crop.kRange') as string}
               keyboardType="numeric"
             />
           </View>
 
-          <Text style={styles.sectionTitle}>Climate Conditions</Text>
+          <Text style={styles.sectionTitle}>{t('crop.climate')}</Text>
           
           <View style={styles.row}>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Temperature (°C)</Text>
+              <Text style={styles.label}>{t('crop.temperature')}</Text>
               <TextInput
                 style={styles.input}
                 value={formData.temperature}
                 onChangeText={(value) => handleInputChange("temperature", value)}
-                placeholder="8-44"
+                placeholder={t('crop.tempRange') as string}
                 keyboardType="numeric"
               />
             </View>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Humidity (%)</Text>
+              <Text style={styles.label}>{t('crop.humidity')}</Text>
               <TextInput
                 style={styles.input}
                 value={formData.humidity}
                 onChangeText={(value) => handleInputChange("humidity", value)}
-                placeholder="14-100"
+                placeholder={t('crop.humidityRange') as string}
                 keyboardType="numeric"
               />
             </View>
@@ -173,37 +175,37 @@ export default function CropRecommendationScreen() {
 
           <View style={styles.row}>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>pH Level</Text>
+              <Text style={styles.label}>{t('crop.ph')}</Text>
               <TextInput
                 style={styles.input}
                 value={formData.ph}
                 onChangeText={(value) => handleInputChange("ph", value)}
-                placeholder="3.5-10"
+                placeholder={t('crop.phRange') as string}
                 keyboardType="numeric"
               />
             </View>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Rainfall (mm)</Text>
+              <Text style={styles.label}>{t('crop.rainfall')}</Text>
               <TextInput
                 style={styles.input}
                 value={formData.rainfall}
                 onChangeText={(value) => handleInputChange("rainfall", value)}
-                placeholder="20-300"
+                placeholder={t('crop.rainfallRange') as string}
                 keyboardType="numeric"
               />
             </View>
           </View>
 
-          <Text style={styles.sectionTitle}>Location & Season</Text>
+          <Text style={styles.sectionTitle}>{t('crop.locationSeason')}</Text>
           
           <View style={styles.pickerContainer}>
-            <Text style={styles.label}>State</Text>
+            <Text style={styles.label}>{t('crop.state')}</Text>
             <Picker
               selectedValue={formData.state}
               onValueChange={(value) => handleInputChange("state", value)}
               style={[styles.picker, { color: "#000" }]}
             >
-              <Picker.Item label="Select State" value="" />
+              <Picker.Item label={t('crop.selectState')} value="" />
               {states.map((state) => (
                 <Picker.Item key={state} label={state} value={state} />
               ))}
@@ -211,13 +213,13 @@ export default function CropRecommendationScreen() {
           </View>
 
           <View style={styles.pickerContainer}>
-            <Text style={styles.label}>Season</Text>
+            <Text style={styles.label}>{t('crop.season')}</Text>
             <Picker
               selectedValue={formData.season}
               onValueChange={(value) => handleInputChange("season", value)}
               style={[styles.picker, { color: "#000" }]}
             >
-              <Picker.Item label="Select Season" value="" />
+              <Picker.Item label={t('crop.selectSeason')} value="" />
               {seasons.map((season) => (
                 <Picker.Item key={season} label={season} value={season} />
               ))}
@@ -235,7 +237,7 @@ export default function CropRecommendationScreen() {
               ) : (
                 <>
                   <Ionicons name="search" size={20} color="#fff" />
-                  <Text style={styles.buttonText}>Get Recommendation</Text>
+                  <Text style={styles.buttonText}>{t('crop.getRecommendation')}</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -245,14 +247,14 @@ export default function CropRecommendationScreen() {
               onPress={resetForm}
             >
               <Ionicons name="refresh" size={20} color={Colors.primary || "#2e7d32"} />
-              <Text style={styles.secondaryButtonText}>Reset</Text>
+              <Text style={styles.secondaryButtonText}>{t('common.reset')}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {recommendation && (
           <View style={styles.resultContainer}>
-            <Text style={styles.resultTitle}>🎯 Recommendation Result</Text>
+            <Text style={styles.resultTitle}>{t('crop.resultTitle')}</Text>
             
             <View style={styles.recommendationCard}>
               <View style={styles.cropHeader}>
@@ -266,7 +268,7 @@ export default function CropRecommendationScreen() {
               </View>
 
               <View style={styles.section}>
-                <Text style={styles.sectionHeader}>📋 Why This Crop?</Text>
+                <Text style={styles.sectionHeader}>{t('crop.whyThis')}</Text>
                 {recommendation.reasons.map((reason, index) => (
                   <Text key={index} style={styles.reasonText}>• {reason}</Text>
                 ))}
@@ -274,7 +276,7 @@ export default function CropRecommendationScreen() {
 
               {recommendation.alternative_crops && recommendation.alternative_crops.length > 0 && (
                 <View style={styles.section}>
-                  <Text style={styles.sectionHeader}>🌱 Alternative Options</Text>
+                  <Text style={styles.sectionHeader}>{t('crop.alternatives')}</Text>
                   <View style={styles.alternativeContainer}>
                     {recommendation.alternative_crops.map((crop, index) => (
                       <View key={index} style={styles.alternativeCrop}>
@@ -286,7 +288,7 @@ export default function CropRecommendationScreen() {
               )}
 
               <View style={styles.section}>
-                <Text style={styles.sectionHeader}>💡 Farming Tips</Text>
+                <Text style={styles.sectionHeader}>{t('crop.tips')}</Text>
                 {recommendation.farming_tips.map((tip, index) => (
                   <Text key={index} style={styles.tipText}>• {tip}</Text>
                 ))}

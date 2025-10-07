@@ -15,8 +15,10 @@ import * as Location from "expo-location";
 import { Colors } from "@/constants/Colors";
 import { getWeatherByCoords, getForecastByCoords } from "@/services/weather";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 export default function WeatherScreen() {
+  const { t } = useTranslation();
   const [weather, setWeather] = useState<any>(null);
   const [forecast, setForecast] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -30,7 +32,7 @@ export default function WeatherScreen() {
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permission Denied", "Please allow location access to get weather information.");
+        Alert.alert(t("weather.permissionDenied"), t("weather.permissionExplain"));
         return;
       }
 
@@ -43,7 +45,7 @@ export default function WeatherScreen() {
       ]);
 
       if (!weatherData) {
-        Alert.alert("Error", "No weather data returned for your location.");
+        Alert.alert("Error", t("weather.noData"));
         setWeather(null);
         setForecast([]);
         setLocationName("");
@@ -55,7 +57,7 @@ export default function WeatherScreen() {
       setLocationName(weatherData.name);
 
     } catch (error) {
-      Alert.alert("Error", "Failed to fetch weather data. Please try again.");
+      Alert.alert("Error", t("weather.error"));
       console.error("Weather fetch error:", error);
     } finally {
       setLoading(false);
@@ -88,7 +90,7 @@ export default function WeatherScreen() {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loadingText}>Fetching weather data...</Text>
+        <Text style={styles.loadingText}>{t("weather.loading")}</Text>
       </View>
     );
   }
@@ -107,22 +109,22 @@ export default function WeatherScreen() {
       >
         <View style={styles.header}>
           <Ionicons name="partly-sunny" size={32} color={Colors.primary} />
-          <Text style={styles.title}>Weather Forecast</Text>
-          <Text style={styles.subtitle}>Get real-time weather information</Text>
+          <Text style={styles.title}>{t("weather.title")}</Text>
+          <Text style={styles.subtitle}>{t("weather.subtitle")}</Text>
         </View>
 
         {!weather ? (
           <View style={styles.placeholderContainer}>
             <Ionicons name="location-outline" size={64} color={Colors.textSecondary} />
             <Text style={styles.placeholderText}>
-              Get current weather information for your location
+              {t("weather.placeholder")}
             </Text>
             <TouchableOpacity
               style={styles.locationButton}
               onPress={() => handleFetchWeatherByLocation()}
             >
               <Ionicons name="navigate" size={20} color={Colors.white} />
-              <Text style={styles.locationButtonText}>Get My Location Weather</Text>
+              <Text style={styles.locationButtonText}>{t("weather.getMyLocation")}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -166,7 +168,7 @@ export default function WeatherScreen() {
             </View>
 
             {/* Forecast Section */}
-            <Text style={styles.sectionTitle}>3-Day Forecast</Text>
+            <Text style={styles.sectionTitle}>{t("weather.threeDay")}</Text>
             <View style={styles.forecastContainer}>
               {forecast.map((day, index) => (
                 <View key={index} style={styles.forecastItem}>
@@ -186,13 +188,13 @@ export default function WeatherScreen() {
             {/* Farming Advice based on Weather */}
             {weather && (
               <View style={styles.adviceContainer}>
-                <Text style={styles.adviceTitle}>🌱 Farming Advice</Text>
+                <Text style={styles.adviceTitle}>{t("weather.advice")}</Text>
                 <Text style={styles.adviceText}>
                   {weather.desc.toLowerCase().includes('rain')
-                    ? "Good time for irrigation. Consider soil moisture levels before additional watering."
+                    ? t("weather.adviceRain")
                     : weather.temp > 30
-                      ? "High temperatures detected. Ensure proper irrigation and consider shade for sensitive crops."
-                      : "Moderate weather conditions. Good time for planting and field activities."
+                      ? t("weather.adviceHot")
+                      : t("weather.adviceModerate")
                   }
                 </Text>
               </View>

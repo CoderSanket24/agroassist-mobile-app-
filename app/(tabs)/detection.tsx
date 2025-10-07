@@ -1,19 +1,20 @@
-import { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  ActivityIndicator,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import * as ImagePicker from "expo-image-picker";
-import axios from "axios";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
+import * as ImagePicker from "expo-image-picker";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Mock data for demonstration (remove when your API is ready)
 const MOCK_DISEASE_DATA = {
@@ -25,6 +26,7 @@ const MOCK_DISEASE_DATA = {
 };
 
 export default function DetectionScreen() {
+  const { t } = useTranslation();
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{
@@ -41,7 +43,7 @@ export default function DetectionScreen() {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission required', 'Please allow access to your photos to select images.');
+        Alert.alert(t('detection.permissionRequired'), t('detection.photosAccess'));
         return;
       }
 
@@ -58,7 +60,7 @@ export default function DetectionScreen() {
         setError(null);
       }
     } catch (err) {
-      Alert.alert('Error', 'Failed to pick image. Please try again.');
+      Alert.alert('Error', t('detection.pickError'));
     }
   };
 
@@ -66,7 +68,7 @@ export default function DetectionScreen() {
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission required', 'Please allow camera access to take photos.');
+        Alert.alert(t('detection.permissionRequired'), t('detection.cameraAccess'));
         return;
       }
 
@@ -82,7 +84,7 @@ export default function DetectionScreen() {
         setError(null);
       }
     } catch (err) {
-      Alert.alert('Error', 'Failed to take photo. Please try again.');
+      Alert.alert('Error', t('detection.takeError'));
     }
   };
 
@@ -107,7 +109,7 @@ export default function DetectionScreen() {
       setResult(res.data);
     } catch (err) {
       console.error("Detection failed", err);
-      setError("Failed to detect disease. Please try again.");
+      setError(t('detection.failed'));
       setResult(null);
     } finally {
       setLoading(false);
@@ -124,27 +126,25 @@ export default function DetectionScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Crop Disease Detection 🌱</Text>
-      <Text style={styles.subtitle}>Identify plant diseases and get treatment recommendations</Text>
+      <Text style={styles.title}>{t('detection.title')}</Text>
+      <Text style={styles.subtitle}>{t('detection.subtitle')}</Text>
 
       {!image ? (
         <View style={styles.uploadSection}>
           <View style={styles.instructionBox}>
             <Ionicons name="information-circle" size={24} color={Colors.primary} />
-            <Text style={styles.instructionText}>
-              Take a clear photo of the affected plant leaves for accurate detection
-            </Text>
+            <Text style={styles.instructionText}>{t('detection.instruction')}</Text>
           </View>
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={[styles.actionButton, styles.cameraButton]} onPress={takePhoto}>
               <Ionicons name="camera" size={24} color={Colors.white} />
-              <Text style={styles.buttonText}>Take Photo</Text>
+              <Text style={styles.buttonText}>{t('detection.takePhoto')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.actionButton, styles.galleryButton]} onPress={pickImage}>
               <Ionicons name="images" size={24} color={Colors.white} />
-              <Text style={styles.buttonText}>Choose from Gallery</Text>
+              <Text style={styles.buttonText}>{t('detection.chooseFromGallery')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -155,13 +155,13 @@ export default function DetectionScreen() {
           <View style={styles.actionRow}>
             <TouchableOpacity style={styles.secondaryButton} onPress={resetDetection}>
               <Ionicons name="close" size={20} color={Colors.text} />
-              <Text style={styles.secondaryButtonText}>Choose Different</Text>
+              <Text style={styles.secondaryButtonText}>{t('detection.chooseDifferent')}</Text>
             </TouchableOpacity>
             
             {!loading && (
               <TouchableOpacity style={styles.primaryButton} onPress={handleDetect}>
                 <Ionicons name="search" size={20} color={Colors.white} />
-                <Text style={styles.primaryButtonText}>Detect Disease</Text>
+                <Text style={styles.primaryButtonText}>{t('detection.detectDisease')}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -171,7 +171,7 @@ export default function DetectionScreen() {
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.primary} />
-          <Text style={styles.loadingText}>Analyzing image...</Text>
+          <Text style={styles.loadingText}>{t('detection.analyzing')}</Text>
         </View>
       )}
 
@@ -184,41 +184,41 @@ export default function DetectionScreen() {
 
       {result && (
         <View style={styles.resultContainer}>
-          <Text style={styles.resultTitle}>Detection Results</Text>
+          <Text style={styles.resultTitle}>{t('detection.results')}</Text>
           
           <View style={styles.resultCard}>
             <View style={styles.diseaseHeader}>
               <Ionicons name="leaf" size={24} color={Colors.primary} />
               <Text style={styles.diseaseName}>{result.disease}</Text>
               <View style={styles.confidenceBadge}>
-                <Text style={styles.confidenceText}>{(result.confidence * 100).toFixed(0)}% confident</Text>
+                <Text style={styles.confidenceText}>{(result.confidence * 100).toFixed(0)}{t('detection.confident')}</Text>
               </View>
             </View>
 
             {result.treatment && (
               <View style={styles.infoSection}>
-                <Text style={styles.sectionTitle}>Recommended Treatment</Text>
+                <Text style={styles.sectionTitle}>{t('detection.recommendedTreatment')}</Text>
                 <Text style={styles.sectionText}>{result.treatment}</Text>
               </View>
             )}
 
             {result.prevention && (
               <View style={styles.infoSection}>
-                <Text style={styles.sectionTitle}>Prevention Tips</Text>
+                <Text style={styles.sectionTitle}>{t('detection.preventionTips')}</Text>
                 <Text style={styles.sectionText}>{result.prevention}</Text>
               </View>
             )}
 
             {result.organic && (
               <View style={styles.infoSection}>
-                <Text style={styles.sectionTitle}>Organic Solution</Text>
+                <Text style={styles.sectionTitle}>{t('detection.organicSolution')}</Text>
                 <Text style={styles.sectionText}>{result.organic}</Text>
               </View>
             )}
 
             {result.symptoms && (
               <View style={styles.infoSection}>
-                <Text style={styles.sectionTitle}>Symptoms</Text>
+                <Text style={styles.sectionTitle}>{t('detection.symptoms')}</Text>
                 <Text style={styles.sectionText}>{result.symptoms}</Text>
               </View>
             )}
@@ -226,7 +226,7 @@ export default function DetectionScreen() {
 
           <TouchableOpacity style={styles.newDetectionButton} onPress={resetDetection}>
             <Ionicons name="add" size={20} color={Colors.white} />
-            <Text style={styles.newDetectionText}>New Detection</Text>
+            <Text style={styles.newDetectionText}>{t('detection.newDetection')}</Text>
           </TouchableOpacity>
         </View>
       )}

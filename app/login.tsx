@@ -1,13 +1,15 @@
-import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
-import { Colors } from "../constants/Colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Colors } from "../constants/Colors";
 
 export default function LoginScreen() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleLogin = async () => {
     // ✅ For now, accept any phone/password
@@ -19,23 +21,23 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>👨‍🌾 AgroAssist Login</Text>
+      <Text style={styles.title}>👨‍🌾 {t('login.title')}</Text>
       <TextInput
         style={styles.input}
-        placeholder="Enter Phone Number"
+        placeholder={t('login.phonePlaceholder') as string}
         keyboardType="phone-pad"
         value={phone}
         onChangeText={setPhone}
       />
       <TextInput
         style={styles.input}
-        placeholder="Enter Password"
+        placeholder={t('login.passwordPlaceholder') as string}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
+        <Text style={styles.buttonText}>{t('login.login')}</Text>
       </TouchableOpacity>
     </View>
   );

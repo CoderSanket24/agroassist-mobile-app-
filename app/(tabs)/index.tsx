@@ -1,20 +1,22 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
-import { Link } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import { Link } from "expo-router";
+import { useTranslation } from "react-i18next";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>🌱 AgroAssist</Text>
-        <Text style={styles.subtitle}>Your smart farming assistant</Text>
+        <Text style={styles.title}>🌱 {t("appName")}</Text>
+        <Text style={styles.subtitle}>{t("tagline")}</Text>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Quick Actions</Text>
+        <Text style={styles.cardTitle}>{t("home.quickActions")}</Text>
         
         <Link href="/query" asChild>
           <TouchableOpacity style={styles.actionButton}>
@@ -22,8 +24,8 @@ export default function HomeScreen() {
               <Ionicons name="mic" size={24} color={Colors.white} />
             </View>
             <View style={styles.textContainer}>
-              <Text style={styles.actionText}>Ask a Query</Text>
-              <Text style={styles.actionSubtext}>Voice or text assistance</Text>
+              <Text style={styles.actionText}>{t("home.askQuery")}</Text>
+              <Text style={styles.actionSubtext}>{t("home.askQuerySub")}</Text>
             </View>
             <Ionicons name="chevron-forward" size={24} color={Colors.text} />
           </TouchableOpacity>
@@ -35,8 +37,8 @@ export default function HomeScreen() {
               <Ionicons name="partly-sunny" size={24} color={Colors.white} />
             </View>
             <View style={styles.textContainer}>
-              <Text style={styles.actionText}>Weather Forecast</Text>
-              <Text style={styles.actionSubtext}>7-day forecast for your area</Text>
+              <Text style={styles.actionText}>{t("home.weatherForecast")}</Text>
+              <Text style={styles.actionSubtext}>{t("home.weatherForecastSub")}</Text>
             </View>
             <Ionicons name="chevron-forward" size={24} color={Colors.text} />
           </TouchableOpacity>
@@ -48,8 +50,8 @@ export default function HomeScreen() {
               <Ionicons name="camera" size={24} color={Colors.white} />
             </View>
             <View style={styles.textContainer}>
-              <Text style={styles.actionText}>Disease Detection</Text>
-              <Text style={styles.actionSubtext}>Scan plant leaves</Text>
+              <Text style={styles.actionText}>{t("home.diseaseDetection")}</Text>
+              <Text style={styles.actionSubtext}>{t("home.diseaseDetectionSub")}</Text>
             </View>
             <Ionicons name="chevron-forward" size={24} color={Colors.text} />
           </TouchableOpacity>
@@ -57,10 +59,10 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Recent Activities</Text>
+        <Text style={styles.cardTitle}>{t("home.recentActivities")}</Text>
         <View style={styles.emptyState}>
           <Ionicons name="time-outline" size={40} color={Colors.text} />
-          <Text style={styles.emptyStateText}>No recent activities</Text>
+          <Text style={styles.emptyStateText}>{t("home.noRecent")}</Text>
         </View>
       </View>
     </ScrollView>
