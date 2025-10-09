@@ -119,6 +119,7 @@
   "query": {
     "title": "Ask Your Farming Question 🌱",
     "language": "Language",
+    "usingLanguage": "Using language",
     "placeholder": "Type or speak your crop query...",
     "listening": "Listening... Speak now",
     "send": "Send Query",

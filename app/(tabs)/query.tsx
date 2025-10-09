@@ -1,9 +1,9 @@
 import ChatHistory from "@/components/ChatHistory";
 import { Colors } from "@/constants/Colors";
+import i18n from "@/i18n";
 import { askQuery, fetchQueries, getSupportedLanguages, speechToText } from "@/services/query";
 import { formatDate } from "@/utils/date";
 import { Ionicons } from "@expo/vector-icons";
-import { Picker } from "@react-native-picker/picker";
 import { Audio } from 'expo-av';
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,10 +35,7 @@ interface LanguageMap {
   [key: string]: string;
 }
 
-interface SpeechToTextResult {
-  text: string;
-  success: boolean;
-}
+
 
 export default function QueryScreen() {
   const { t } = useTranslation();
@@ -49,7 +46,12 @@ export default function QueryScreen() {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [permissionResponse, requestPermission] = Audio.usePermissions();
   const [languages, setLanguages] = useState<LanguageMap>({});
-  const [selectedLanguage, setSelectedLanguage] = useState('en-IN');
+
+  // Get current language from i18n
+  const getCurrentLanguageCode = () => {
+    const currentLang = i18n.language || 'en';
+    return languages[currentLang] || DEFAULT_LANGUAGES[currentLang as keyof typeof DEFAULT_LANGUAGES] || 'en-IN';
+  };
 
   useEffect(() => {
     loadHistory();
@@ -127,8 +129,9 @@ export default function QueryScreen() {
   const processAudioRecording = async (uri: string) => {
     setIsLoading(true);
     try {
-      console.log('Selected language:', selectedLanguage);
-      const result = await speechToText(uri, selectedLanguage);
+      const currentLanguageCode = getCurrentLanguageCode();
+      console.log('Using app language:', i18n.language, '-> Speech code:', currentLanguageCode);
+      const result = await speechToText(uri, currentLanguageCode);
 
       setQuery(result.text);
 
@@ -141,7 +144,7 @@ export default function QueryScreen() {
       }
     } catch (error) {
       console.error('Audio processing error:', error);
-      
+
     } finally {
       setIsLoading(false);
     }
@@ -179,104 +182,80 @@ export default function QueryScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <Text style={styles.title}>{t('query.title')}</Text>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <Text style={styles.title}>{t('query.title')}</Text>
 
-      {/* Language Selector */}
-      <View style={styles.languageSelector}>
-        <Text style={styles.languageLabel}>{t('query.language')}:</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={selectedLanguage}
-            style={styles.picker}
-            onValueChange={(itemValue: string) => {
-              console.log('Language selected:', itemValue);
-              setSelectedLanguage(itemValue);
-            }}
-            dropdownIconColor={Colors.primary}
-          >
-            {Object.entries(languages).map(([code, googleCode]) => (
-              <Picker.Item
-                key={code}
-                label={code.toUpperCase()}
-                value={googleCode}
-              />
-            ))}
-          </Picker>
-        </View>
-      </View>
-
-      {/* Input Area */}
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder={t('query.placeholder') as string}
-          placeholderTextColor="#888"
-          value={query}
-          onChangeText={setQuery}
-          multiline
-          maxLength={500}
-          editable={!isLoading}
-        />
-
-        {query.length > 0 && (
-          <TouchableOpacity onPress={clearInput} style={styles.clearButton}>
-            <Ionicons name="close-circle" size={20} color={Colors.textSecondary} />
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {/* Voice Recording Indicator */}
-      {isRecording && (
-        <View style={styles.recordingIndicator}>
-          <View style={styles.recordingPulse} />
-          <Ionicons name="mic" size={20} color={Colors.white} />
-          <Text style={styles.recordingText}>{t('query.listening')}</Text>
-        </View>
-      )}
-
-      {/* Action Buttons */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, (!query.trim() || isLoading) && styles.buttonDisabled]}
-          onPress={handleSend}
-          disabled={!query.trim() || isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color={Colors.white} />
-          ) : (
-            <>
-              <Ionicons name="send" size={16} color={Colors.white} />
-              <Text style={styles.buttonText}>{t('query.send')}</Text>
-            </>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, styles.voiceButton, isRecording && styles.recordingButton]}
-          onPress={isRecording ? stopRecording : startRecording}
-          disabled={isLoading}
-        >
-          <Ionicons
-            name={isRecording ? "mic-off" : "mic"}
-            size={16}
-            color={Colors.white}
+        {/* Input Area */}
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder={t('query.placeholder') as string}
+            placeholderTextColor="#888"
+            value={query}
+            onChangeText={setQuery}
+            multiline
+            maxLength={500}
+            editable={!isLoading}
           />
-          <Text style={styles.buttonText}>
-            {isRecording ? t('query.stop') : t('query.voice')}
-          </Text>
-        </TouchableOpacity>
-      </View>
 
-      {/* Chat History */}
-      <View style={styles.historyContainer}>
-        <Text style={styles.historyTitle}>{t('query.recent')}</Text>
-        <ChatHistory history={history} />
-      </View>
-    </KeyboardAvoidingView>
+          {query.length > 0 && (
+            <TouchableOpacity onPress={clearInput} style={styles.clearButton}>
+              <Ionicons name="close-circle" size={20} color={Colors.textSecondary} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Voice Recording Indicator */}
+        {isRecording && (
+          <View style={styles.recordingIndicator}>
+            <View style={styles.recordingPulse} />
+            <Ionicons name="mic" size={20} color={Colors.white} />
+            <Text style={styles.recordingText}>{t('query.listening')}</Text>
+          </View>
+        )}
+
+        {/* Action Buttons */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.button, (!query.trim() || isLoading) && styles.buttonDisabled]}
+            onPress={handleSend}
+            disabled={!query.trim() || isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color={Colors.white} />
+            ) : (
+              <>
+                <Ionicons name="send" size={16} color={Colors.white} />
+                <Text style={styles.buttonText}>{t('query.send')}</Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.voiceButton, isRecording && styles.recordingButton]}
+            onPress={isRecording ? stopRecording : startRecording}
+            disabled={isLoading}
+          >
+            <Ionicons
+              name={isRecording ? "mic-off" : "mic"}
+              size={16}
+              color={Colors.white}
+            />
+            <Text style={styles.buttonText}>
+              {isRecording ? t('query.stop') : t('query.voice')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Chat History */}
+        <View style={styles.historyContainer}>
+          <Text style={styles.historyTitle}>{t('query.recent')}</Text>
+          <ChatHistory history={history} />
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -294,32 +273,7 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     textAlign: "center"
   },
-  languageSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    backgroundColor: Colors.white,
-    paddingTop: 4,
-    paddingBottom: 4,
-    paddingLeft: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  languageLabel: {
-    marginRight: 10,
-    color: Colors.text,
-    fontWeight: '500',
-  },
-  pickerContainer: {
-    flex: 1,
-    borderWidth: 0,
-  },
-  picker: {
-    height: 50,
-    width: '100%',
-    color: Colors.text,
-  },
+
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
