@@ -71,12 +71,51 @@
   "common": {
     "ok": "ठीक",
     "error": "त्रुटि",
-    "reset": "रीसेट"
+    "reset": "रीसेट",
+    "cancel": "रद्द करें",
+    "comingSoon": "जल्द आ रहा है"
+  },
+  "personalInfo": {
+    "title": "व्यक्तिगत जानकारी",
+    "subtitle": "अपनी खेती प्रोफ़ाइल और संपर्क विवरण अपडेट करें",
+    "name": "पूरा नाम",
+    "namePlaceholder": "अपना पूरा नाम दर्ज करें",
+    "phone": "फ़ोन नंबर",
+    "phonePlaceholder": "अपना फ़ोन नंबर दर्ज करें",
+    "village": "गाँव",
+    "villagePlaceholder": "अपने गाँव का नाम दर्ज करें",
+    "district": "जिला",
+    "districtPlaceholder": "अपना जिला दर्ज करें",
+    "state": "राज्य",
+    "statePlaceholder": "अपना राज्य दर्ज करें",
+    "farmSize": "खेत का आकार (एकड़)",
+    "farmSizePlaceholder": "एकड़ में खेत का आकार दर्ज करें",
+    "cropTypes": "फसल के प्रकार",
+    "cropTypesPlaceholder": "आप जो फसलें उगाते हैं (जैसे चावल, गेहूं, कपास)",
+    "experience": "खेती का अनुभव (वर्ष)",
+    "experiencePlaceholder": "खेती के अनुभव के वर्ष दर्ज करें",
+    "save": "प्रोफ़ाइल सेव करें",
+    "saving": "सेव हो रहा है...",
+    "success": "सफलता",
+    "profileSaved": "आपकी प्रोफ़ाइल सफलतापूर्वक सेव हो गई है!",
+    "saveFailed": "प्रोफ़ाइल सेव करने में विफल। कृपया पुनः प्रयास करें।",
+    "requiredFields": "कृपया सभी आवश्यक फ़ील्ड भरें (नाम और फ़ोन)"
   },
   "profile": {
     "title": "किसान प्रोफ़ाइल",
     "subtitle": "यहाँ अपनी जानकारी और प्राथमिकताएँ प्रबंधित करें।",
-    "logout": "लॉगआउट"
+    "logout": "लॉगआउट",
+    "confirmLogout": "लॉगआउट की पुष्टि करें",
+    "logoutMessage": "क्या आप वाकई लॉगआउट करना चाहते हैं?",
+    "personalInfo": "व्यक्तिगत जानकारी",
+    "personalInfoSub": "अपनी प्रोफ़ाइल विवरण अपडेट करें",
+    "language": "भाषा सेटिंग्स",
+    "currentLang": "वर्तमान",
+    "notifications": "सूचनाएं",
+    "notificationsSub": "अपने अलर्ट प्रबंधित करें",
+    "help": "सहायता और समर्थन",
+    "helpSub": "सहायता और ट्यूटोरियल प्राप्त करें",
+    "featureComingSoon": "यह सुविधा जल्द ही उपलब्ध होगी!"
   },
   "login": {
     "title": "एग्रोअसिस्ट लॉगिन",

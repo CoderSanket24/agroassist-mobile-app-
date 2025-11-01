@@ -1,6 +1,5 @@
-import axios from 'axios';
-
-const API_BASE_URL = 'http://172.168.2.99:8000'; // Replace with your FastAPI backend URL
+import Constants from "expo-constants";
+const {API_BASE_URL} = Constants.expoConfig?.extra || {};
 
 export interface CropRecommendationInput {
   nitrogen: string;

@@ -1,37 +1,19 @@
 import { Colors } from "@/constants/Colors";
-import i18n from "@/i18n";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const { t } = useTranslation();
-  const [showLanguageModal, setShowLanguageModal] = useState(false);
-
-  const changeLanguage = async (lng: string) => {
-    await i18n.changeLanguage(lng);
-    setShowLanguageModal(false);
-  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
       <ScrollView style={styles.container}>
         <View style={styles.header}>
-          <View style={styles.headerContent}>
-            <View style={styles.titleContainer}>
-              <Text style={styles.title}>🌱 {t("appName")}</Text>
-              <Text style={styles.subtitle}>{t("tagline")}</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.languageButton}
-              onPress={() => setShowLanguageModal(true)}
-            >
-              <Ionicons name="globe-outline" size={24} color={Colors.primary} />
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.title}>🌱 {t("appName")}</Text>
+          <Text style={styles.subtitle}>{t("tagline")}</Text>
         </View>
 
         <View style={styles.card}>
@@ -84,44 +66,6 @@ export default function HomeScreen() {
             <Text style={styles.emptyStateText}>{t("home.noRecent")}</Text>
           </View>
         </View>
-
-        <Modal
-          visible={showLanguageModal}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setShowLanguageModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>{t("lang.choose")}</Text>
-
-              <TouchableOpacity
-                style={[styles.languageOption, i18n.language === "en" && styles.languageOptionSelected]}
-                onPress={() => changeLanguage("en")}
-              >
-                <Text style={[styles.languageOptionText, i18n.language === "en" && styles.languageOptionTextSelected]}>
-                  🇺🇸 English
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.languageOption, i18n.language === "hi" && styles.languageOptionSelected]}
-                onPress={() => changeLanguage("hi")}
-              >
-                <Text style={[styles.languageOptionText, i18n.language === "hi" && styles.languageOptionTextSelected]}>
-                  🇮🇳 हिंदी
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.modalCloseButton}
-                onPress={() => setShowLanguageModal(false)}
-              >
-                <Text style={styles.modalCloseText}>{t("common.cancel")}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
       </ScrollView>
     </SafeAreaView>
   );
@@ -134,20 +78,12 @@ const styles = StyleSheet.create({
     padding: 16
   },
   header: {
-    paddingVertical: 20,
+    paddingVertical: 15,
+    alignItems: "center",
     marginBottom: 16,
   },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  titleContainer: {
-    flex: 1,
-    alignItems: "center",
-  },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     color: Colors.primary,
     marginBottom: 8
@@ -155,16 +91,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: Colors.textSecondary
-  },
-  languageButton: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: Colors.white,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
   },
   card: {
     backgroundColor: Colors.white,
@@ -221,57 +147,5 @@ const styles = StyleSheet.create({
     marginTop: 12,
     color: Colors.textSecondary,
     fontSize: 14,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    padding: 24,
-    width: "80%",
-    maxWidth: 300,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: Colors.text,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  languageOption: {
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: Colors.background,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  languageOptionSelected: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.lightPrimary || "#e3f2fd",
-  },
-  languageOptionText: {
-    fontSize: 16,
-    color: Colors.text,
-    textAlign: "center",
-    fontWeight: "500",
-  },
-  languageOptionTextSelected: {
-    color: Colors.primary,
-    fontWeight: "600",
-  },
-  modalCloseButton: {
-    marginTop: 8,
-    padding: 12,
-    borderRadius: 8,
-  },
-  modalCloseText: {
-    color: Colors.textSecondary,
-    textAlign: "center",
-    fontSize: 16,
   },
 });

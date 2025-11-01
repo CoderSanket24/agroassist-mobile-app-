@@ -71,12 +71,51 @@
   "common": {
     "ok": "OK",
     "error": "Error",
-    "reset": "Reset"
+    "reset": "Reset",
+    "cancel": "Cancel",
+    "comingSoon": "Coming Soon"
+  },
+  "personalInfo": {
+    "title": "Personal Information",
+    "subtitle": "Update your farming profile and contact details",
+    "name": "Full Name",
+    "namePlaceholder": "Enter your full name",
+    "phone": "Phone Number",
+    "phonePlaceholder": "Enter your phone number",
+    "village": "Village",
+    "villagePlaceholder": "Enter your village name",
+    "district": "District",
+    "districtPlaceholder": "Enter your district",
+    "state": "State",
+    "statePlaceholder": "Enter your state",
+    "farmSize": "Farm Size (Acres)",
+    "farmSizePlaceholder": "Enter farm size in acres",
+    "cropTypes": "Crop Types",
+    "cropTypesPlaceholder": "Enter crops you grow (e.g., Rice, Wheat, Cotton)",
+    "experience": "Farming Experience (Years)",
+    "experiencePlaceholder": "Enter years of farming experience",
+    "save": "Save Profile",
+    "saving": "Saving...",
+    "success": "Success",
+    "profileSaved": "Your profile has been saved successfully!",
+    "saveFailed": "Failed to save profile. Please try again.",
+    "requiredFields": "Please fill in all required fields (Name and Phone)"
   },
   "profile": {
     "title": "Farmer Profile",
     "subtitle": "Manage your details and preferences here.",
-    "logout": "Logout"
+    "logout": "Logout",
+    "confirmLogout": "Confirm Logout",
+    "logoutMessage": "Are you sure you want to logout?",
+    "personalInfo": "Personal Information",
+    "personalInfoSub": "Update your profile details",
+    "language": "Language Settings",
+    "currentLang": "Current",
+    "notifications": "Notifications",
+    "notificationsSub": "Manage your alerts",
+    "help": "Help & Support",
+    "helpSub": "Get assistance and tutorials",
+    "featureComingSoon": "This feature will be available soon!"
   },
   "login": {
     "title": "AgroAssist Login",
