@@ -50,6 +50,15 @@ export default function LanguageScreen() {
           </Text>
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={[styles.option, selected === "mr" && styles.optionSelected]}
+          onPress={() => setLanguage("mr")}
+        >
+          <Text style={[styles.optionText, selected === "mr" && styles.optionTextSelected]}>
+            {i18n.t("lang.marathi")}
+          </Text>
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.continue} onPress={handleContinue}>
           <Text style={styles.continueText}>{i18n.t("lang.continue")}</Text>
         </TouchableOpacity>

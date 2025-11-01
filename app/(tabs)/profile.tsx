@@ -141,6 +141,15 @@ export default function ProfileScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
+                style={[styles.languageOption, i18n.language === "mr" && styles.languageOptionSelected]}
+                onPress={() => changeLanguage("mr")}
+              >
+                <Text style={[styles.languageOptionText, i18n.language === "mr" && styles.languageOptionTextSelected]}>
+                  🇮🇳 मराठी
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
                 style={styles.modalCloseButton}
                 onPress={() => setShowLanguageModal(false)}
               >

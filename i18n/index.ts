@@ -3,6 +3,7 @@ import { initReactI18next } from "react-i18next";
 
 import en from "./locales/en.json";
 import hi from "./locales/hi.json";
+import mr from "./locales/mr.json";
 
 // Initialize i18next once for the app
 if (!i18next.isInitialized) {
@@ -12,6 +13,7 @@ if (!i18next.isInitialized) {
       resources: {
         en: { translation: en },
         hi: { translation: hi },
+        mr: { translation: mr },
       },
       lng: "en",
       fallbackLng: "en",
