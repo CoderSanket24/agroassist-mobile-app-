@@ -169,7 +169,9 @@
     "recordingFailed": "Failed to process recording.",
     "demoTitle": "Demo Mode",
     "demoDesc": "Using simulated response. Real speech recognition is working but this is a demo response.",
-    "errorAnswer": "Sorry, I couldn't process your request. Please try again."
+    "errorAnswer": "Sorry, I couldn't process your request. Please try again.",
+    "listenToAnswer": "Listen to answer",
+    "stopListening": "Stop listening"
   }
 }
 

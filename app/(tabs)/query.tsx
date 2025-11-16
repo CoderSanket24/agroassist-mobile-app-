@@ -5,6 +5,7 @@ import { askQuery, fetchQueries, getSupportedLanguages, speechToText } from "@/s
 import { formatDate } from "@/utils/date";
 import { Ionicons } from "@expo/vector-icons";
 import { Audio } from 'expo-av';
+import * as Speech from 'expo-speech';
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -46,11 +47,68 @@ export default function QueryScreen() {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [permissionResponse, requestPermission] = Audio.usePermissions();
   const [languages, setLanguages] = useState<LanguageMap>({});
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentSpeakingIndex, setCurrentSpeakingIndex] = useState<number | null>(null);
 
   // Get current language from i18n
   const getCurrentLanguageCode = () => {
     const currentLang = i18n.language || 'en';
     return languages[currentLang] || DEFAULT_LANGUAGES[currentLang as keyof typeof DEFAULT_LANGUAGES] || 'en-IN';
+  };
+
+  // Get TTS language code
+  const getTTSLanguageCode = () => {
+    const currentLang = i18n.language || 'en';
+    const ttsLanguages: { [key: string]: string } = {
+      'en': 'en-IN',
+      'hi': 'hi-IN',
+      'mr': 'mr-IN'
+    };
+    return ttsLanguages[currentLang] || 'en-IN';
+  };
+
+  // Text-to-Speech function
+  const speakText = async (text: string, index?: number) => {
+    try {
+      // Stop any ongoing speech
+      await Speech.stop();
+      
+      if (index !== undefined) {
+        setCurrentSpeakingIndex(index);
+      }
+      setIsSpeaking(true);
+
+      const languageCode = getTTSLanguageCode();
+      
+      await Speech.speak(text, {
+        language: languageCode,
+        pitch: 1.0,
+        rate: 0.9, // Slightly slower for better comprehension
+        onDone: () => {
+          setIsSpeaking(false);
+          setCurrentSpeakingIndex(null);
+        },
+        onStopped: () => {
+          setIsSpeaking(false);
+          setCurrentSpeakingIndex(null);
+        },
+        onError: () => {
+          setIsSpeaking(false);
+          setCurrentSpeakingIndex(null);
+        }
+      });
+    } catch (error) {
+      console.error('TTS Error:', error);
+      setIsSpeaking(false);
+      setCurrentSpeakingIndex(null);
+    }
+  };
+
+  // Stop speech
+  const stopSpeaking = async () => {
+    await Speech.stop();
+    setIsSpeaking(false);
+    setCurrentSpeakingIndex(null);
   };
 
   useEffect(() => {
@@ -162,15 +220,23 @@ export default function QueryScreen() {
 
     try {
       const res = await askQuery(userQuery);
+      const answer = res.answer;
       setHistory(prev => [
-        { q: userQuery, a: res.answer, time: formatDate(res.created_at) },
+        { q: userQuery, a: answer, time: formatDate(res.created_at) },
         ...prev.filter(item => item.a !== "Thinking...")
       ]);
+      
+      // Automatically speak the answer
+      await speakText(answer, 0);
     } catch (err) {
+      const errorMsg = t('query.errorAnswer');
       setHistory(prev => [
-        { q: userQuery, a: t('query.errorAnswer'), time: timestamp },
+        { q: userQuery, a: errorMsg, time: timestamp },
         ...prev.filter(item => item.a !== "Thinking...")
       ]);
+      
+      // Speak error message
+      await speakText(errorMsg, 0);
     } finally {
       setIsLoading(false);
     }
@@ -253,7 +319,13 @@ export default function QueryScreen() {
         {/* Chat History */}
         <View style={styles.historyContainer}>
           <Text style={styles.historyTitle}>{t('query.recent')}</Text>
-          <ChatHistory history={history} />
+          <ChatHistory 
+            history={history}
+            onSpeak={speakText}
+            onStopSpeaking={stopSpeaking}
+            isSpeaking={isSpeaking}
+            currentSpeakingIndex={currentSpeakingIndex}
+          />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
