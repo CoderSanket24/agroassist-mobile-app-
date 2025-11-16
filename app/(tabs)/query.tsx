@@ -219,7 +219,8 @@ export default function QueryScreen() {
     setQuery("");
 
     try {
-      const res = await askQuery(userQuery);
+      const currentLanguageCode = getCurrentLanguageCode();
+      const res = await askQuery(userQuery,currentLanguageCode);
       const answer = res.answer;
       setHistory(prev => [
         { q: userQuery, a: answer, time: formatDate(res.created_at) },

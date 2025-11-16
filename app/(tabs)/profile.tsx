@@ -1,7 +1,7 @@
 import { Colors } from "@/constants/Colors";
 import i18n from "@/i18n";
+import { logoutUser } from "@/services/auth";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -28,7 +28,7 @@ export default function ProfileScreen() {
           text: t('profile.logout'),
           style: 'destructive',
           onPress: async () => {
-            await AsyncStorage.removeItem("user");
+            await logoutUser();
             router.replace("/login");
           }
         }
