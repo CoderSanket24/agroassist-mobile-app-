@@ -30,15 +30,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="crop-recommendation"
-        options={{
-          title: t("tabs.crops"),
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="leaf" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="query"
         options={{
           title: t("tabs.query"),
