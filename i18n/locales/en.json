@@ -78,7 +78,8 @@
     "preventionTips": "Prevention Tips",
     "organicSolution": "Organic Solution",
     "symptoms": "Symptoms",
-    "newDetection": "New Detection"
+    "newDetection": "New Detection",
+    "responseLanguage": "Response Language"
   },
   "lang": {
     "choose": "Choose your language",

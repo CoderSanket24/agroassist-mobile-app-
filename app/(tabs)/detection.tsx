@@ -1,4 +1,5 @@
 import { Colors } from "@/constants/Colors";
+import i18n from "@/i18n";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
@@ -94,12 +95,18 @@ export default function DetectionScreen() {
     setLoading(true);
     setError(null);
     
+    // Get current language code
+    const currentLanguage = i18n.language || 'en';
+    
     const formData = new FormData();
     formData.append("file", {
       uri: image,
       type: "image/jpeg",
       name: "photo.jpg",
     } as any);
+    
+    // Add language code to the request
+    formData.append("language", currentLanguage);
 
     try {
       const res = await axios.post("http://172.168.2.99:8000/detect-disease", formData, {
@@ -128,6 +135,14 @@ export default function DetectionScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>{t('detection.title')}</Text>
       <Text style={styles.subtitle}>{t('detection.subtitle')}</Text>
+      
+      {/* Language Indicator */}
+      <View style={styles.languageIndicator}>
+        <Ionicons name="language" size={16} color={Colors.primary} />
+        <Text style={styles.languageText}>
+          {t('detection.responseLanguage')}: {i18n.language?.toUpperCase() || 'EN'}
+        </Text>
+      </View>
 
       {!image ? (
         <View style={styles.uploadSection}>
@@ -252,7 +267,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     color: Colors.textSecondary,
+    marginBottom: 12,
+  },
+  languageIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.white,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    alignSelf: "center",
     marginBottom: 20,
+    gap: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  languageText: {
+    fontSize: 14,
+    color: Colors.text,
+    fontWeight: "500",
   },
   uploadSection: {
     alignItems: "center",
