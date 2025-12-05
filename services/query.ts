@@ -17,7 +17,9 @@ export const askQuery = async (question: string, lang:string) => {
 
 export const fetchQueries = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/queries`);
+    const user = await AsyncStorage.getItem('user');
+    const userId:string = JSON.parse(user || '{}').id;
+    const response = await axios.get(`${API_BASE_URL}/queries?user_id=${userId}`);
     return response.data; // array of queries
   } catch (error) {
     console.error("Error in fetchQueries:", error);

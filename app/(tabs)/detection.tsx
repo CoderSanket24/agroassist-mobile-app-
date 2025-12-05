@@ -1,5 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import i18n from "@/i18n";
+import { getCurrentUser } from "@/services/auth";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
@@ -26,9 +27,33 @@ const MOCK_DISEASE_DATA = {
   organic: "Use baking soda spray (1 tbsp baking soda, 1 tsp vegetable oil, 1 gallon water)."
 };
 
+const CROP_OPTIONS = [
+  { label: 'Apple', value: 'apple', model: 1 },
+  { label: 'Banana', value: 'banana', model: 2 },
+  { label: 'Blueberry', value: 'blueberry', model: 1 },
+  { label: 'Cauliflower', value: 'cauliflower', model: 2 },
+  { label: 'Cherry', value: 'cherry', model: 1 },
+  { label: 'Chilli', value: 'chilli', model: 2 },
+  { label: 'Corn', value: 'corn', model: 1 },
+  { label: 'Grape', value: 'grape', model: 1 },
+  { label: 'Groundnut', value: 'groundnut', model: 2 },
+  { label: 'Orange', value: 'orange', model: 1 },
+  { label: 'Peach', value: 'peach', model: 1 },
+  { label: 'Pepper', value: 'pepper', model: 1 },
+  { label: 'Potato', value: 'potato', model: 1 },
+  { label: 'Radish', value: 'radish', model: 2 },
+  { label: 'Raspberry', value: 'raspberry', model: 1 },
+  { label: 'Soybean', value: 'soybean', model: 1 },
+  { label: 'Squash', value: 'squash', model: 1 },
+  { label: 'Strawberry', value: 'strawberry', model: 1 },
+  { label: 'Tomato', value: 'tomato', model: 1 },
+];
+
 export default function DetectionScreen() {
   const { t } = useTranslation();
   const [image, setImage] = useState<string | null>(null);
+  const [selectedCrop, setSelectedCrop] = useState<string>('');
+  const [showCropPicker, setShowCropPicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{
     disease: string;
@@ -95,39 +120,59 @@ export default function DetectionScreen() {
     setLoading(true);
     setError(null);
     
-    // Get current language code
-    const currentLanguage = i18n.language || 'en';
-    
-    const formData = new FormData();
-    formData.append("file", {
-      uri: image,
-      type: "image/jpeg",
-      name: "photo.jpg",
-    } as any);
-    
-    // Add language code to the request
-    formData.append("language", currentLanguage);
-
     try {
-      const res = await axios.post("http://172.168.2.99:8000/detect-disease", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        timeout: 30000, // 30 second timeout
+      // Get current user
+      const user = await getCurrentUser();
+      const userId = user?.id || 'anonymous';
+      
+      // Get current language code
+      const currentLanguage = i18n.language || 'en';
+      
+      const formData = new FormData();
+      formData.append("file", {
+        uri: image,
+        type: "image/jpeg",
+        name: "photo.jpg",
+      } as any);
+      
+      // Add language code, user_id, and crop hint to the request
+      formData.append("language", currentLanguage);
+      formData.append("user_id", userId);
+      if (selectedCrop) {
+        formData.append("crop_hint", selectedCrop);
+      }
+
+      console.log('🔍 Sending detection request:', {
+        language: currentLanguage,
+        user_id: userId,
+        image: image.substring(0, 50) + '...'
       });
+
+      const res = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_BASE_URL || 'http://172.168.2.99:8000'}/detect-disease`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          timeout: 30000, // 30 second timeout
+        }
+      );
+      
+      console.log('✅ Detection successful:', res.data);
       setResult(res.data);
-    } catch (err) {
-      console.error("Detection failed", err);
+    } catch (err: any) {
+      console.error("❌ Detection failed:", err.response?.data || err.message);
       setError(t('detection.failed'));
       setResult(null);
     } finally {
       setLoading(false);
     }
-    
   };
 
   const resetDetection = () => {
     setImage(null);
     setResult(null);
     setError(null);
+    setSelectedCrop('');
   };
 
   return (
@@ -142,6 +187,52 @@ export default function DetectionScreen() {
         <Text style={styles.languageText}>
           {t('detection.responseLanguage')}: {i18n.language?.toUpperCase() || 'EN'}
         </Text>
+      </View>
+
+      {/* Crop Selection */}
+      <View style={styles.cropSelectionSection}>
+        <Text style={styles.cropLabel}>Select Crop (Optional)</Text>
+        <TouchableOpacity 
+          style={styles.cropSelector}
+          onPress={() => setShowCropPicker(!showCropPicker)}
+        >
+          <Ionicons name="leaf" size={20} color={Colors.primary} />
+          <Text style={styles.cropSelectorText}>
+            {selectedCrop ? CROP_OPTIONS.find(c => c.value === selectedCrop)?.label : 'Auto-detect'}
+          </Text>
+          <Ionicons name={showCropPicker ? "chevron-up" : "chevron-down"} size={20} color={Colors.textSecondary} />
+        </TouchableOpacity>
+        
+        {showCropPicker && (
+          <ScrollView style={styles.cropPickerContainer} nestedScrollEnabled>
+            <TouchableOpacity 
+              style={[styles.cropOption, !selectedCrop && styles.cropOptionSelected]}
+              onPress={() => {
+                setSelectedCrop('');
+                setShowCropPicker(false);
+              }}
+            >
+              <Text style={[styles.cropOptionText, !selectedCrop && styles.cropOptionTextSelected]}>
+                Auto-detect
+              </Text>
+            </TouchableOpacity>
+            {CROP_OPTIONS.map((crop) => (
+              <TouchableOpacity
+                key={crop.value}
+                style={[styles.cropOption, selectedCrop === crop.value && styles.cropOptionSelected]}
+                onPress={() => {
+                  setSelectedCrop(crop.value);
+                  setShowCropPicker(false);
+                }}
+              >
+                <Text style={[styles.cropOptionText, selectedCrop === crop.value && styles.cropOptionTextSelected]}>
+                  {crop.label}
+                </Text>
+                <Text style={styles.cropModelBadge}>Model {crop.model}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
       </View>
 
       {!image ? (
@@ -479,5 +570,64 @@ const styles = StyleSheet.create({
   },
   lightError: {
     backgroundColor: "#ffebee",
+  },
+  cropSelectionSection: {
+    marginBottom: 20,
+  },
+  cropLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.text,
+    marginBottom: 8,
+  },
+  cropSelector: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.white,
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    gap: 10,
+  },
+  cropSelectorText: {
+    flex: 1,
+    fontSize: 16,
+    color: Colors.text,
+  },
+  cropPickerContainer: {
+    maxHeight: 200,
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  cropOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  cropOptionSelected: {
+    backgroundColor: Colors.lightPrimary,
+  },
+  cropOptionText: {
+    fontSize: 15,
+    color: Colors.text,
+  },
+  cropOptionTextSelected: {
+    color: Colors.primary,
+    fontWeight: "600",
+  },
+  cropModelBadge: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    backgroundColor: Colors.background,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
   },
 });
