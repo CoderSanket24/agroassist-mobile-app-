@@ -20,6 +20,7 @@ export const getWeatherByCoords = async (lat: number, lon: number) => {
       humidity: response.data.main.humidity,
       pressure: response.data.main.pressure,
       windSpeed: response.data.wind.speed,
+      rainfall: response.data.rain?.['1h'] || 0,
     };
   } catch (error) {
     console.error("Current Weather Error:", error);
@@ -42,6 +43,8 @@ export const getForecastByCoords = async (lat: number, lon: number) => {
       temp: item.main.temp,
       desc: item.weather[0].description,
       icon: item.weather[0].icon,
+      humidity: item.main.humidity,
+      rainfall: item.rain?.['3h'] || 0,
     }));
   } catch (error) {
     console.error("Forecast Error:", error);

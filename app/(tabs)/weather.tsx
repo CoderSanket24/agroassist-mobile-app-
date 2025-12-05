@@ -14,6 +14,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import { Colors } from "@/constants/Colors";
 import { getWeatherByCoords, getForecastByCoords } from "@/services/weather";
+import { generateAdvisories, getPriorityColor, Advisory } from "@/services/weatherAdvisory";
+import { logWeatherSearch } from "@/services/weatherTracking";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 
@@ -21,6 +23,7 @@ export default function WeatherScreen() {
   const { t } = useTranslation();
   const [weather, setWeather] = useState<any>(null);
   const [forecast, setForecast] = useState<any[]>([]);
+  const [advisories, setAdvisories] = useState<Advisory[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [locationName, setLocationName] = useState("");
@@ -38,7 +41,23 @@ export default function WeatherScreen() {
 
       let location = await Location.getCurrentPositionAsync({});
 
-      // Get location name from coordinates
+      // Get location name using reverse geocoding for consistency
+      let cityName = "";
+      try {
+        const geocode = await Location.reverseGeocodeAsync({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude
+        });
+        
+        if (geocode && geocode.length > 0) {
+          const geo = geocode[0];
+          cityName = geo.city || geo.district || geo.subregion || geo.region || "";
+        }
+      } catch (geoError) {
+        console.error('Geocoding failed:', geoError);
+      }
+
+      // Get weather data
       const [weatherData, forecastData] = await Promise.all([
         getWeatherByCoords(location.coords.latitude, location.coords.longitude),
         getForecastByCoords(location.coords.latitude, location.coords.longitude)
@@ -52,9 +71,28 @@ export default function WeatherScreen() {
         return;
       }
 
+      // Use geocoded city name if available, otherwise use weather API name
+      const displayName = cityName || weatherData.name;
+
       setWeather(weatherData);
       setForecast(forecastData);
-      setLocationName(weatherData.name);
+      setLocationName(displayName);
+
+      // Generate intelligent advisories
+      const farmingAdvisories = generateAdvisories(weatherData, forecastData);
+      setAdvisories(farmingAdvisories);
+
+      // Log weather search to backend
+      logWeatherSearch({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        location_name: displayName,
+        temperature: weatherData.temp,
+        humidity: weatherData.humidity,
+        wind_speed: weatherData.windSpeed,
+        weather_condition: weatherData.desc,
+        advisories_count: farmingAdvisories.length
+      }).catch(err => console.error('Failed to log weather search:', err));
 
     } catch (error) {
       Alert.alert("Error", t("weather.error"));
@@ -134,11 +172,13 @@ export default function WeatherScreen() {
               styles.weatherCard,
               { backgroundColor: getWeatherBackground(weather.desc) }
             ]}>
-              <Text style={styles.locationName}>{weather.name}</Text>
+              <Text style={styles.locationName}>{locationName}</Text>
               <View style={styles.currentWeather}>
                 <View style={styles.temperatureContainer}>
                   <Text style={styles.temperature}>{Math.round(weather.temp)}°</Text>
-                  <Text style={styles.weatherDescription}>{weather.desc}</Text>
+                  <Text style={styles.weatherDescription}>
+                    {t(`weather.conditions.${weather.desc}`, { defaultValue: weather.desc })}
+                  </Text>
                 </View>
                 <View style={styles.weatherIconContainer}>
                   <Image
@@ -152,17 +192,17 @@ export default function WeatherScreen() {
                 <View style={styles.detailItem}>
                   <Ionicons name="water-outline" size={20} color={Colors.primary} />
                   <Text style={styles.detailText}>{weather.humidity}%</Text>
-                  <Text style={styles.detailLabel}>Humidity</Text>
+                  <Text style={styles.detailLabel}>{t("weather.humidity")}</Text>
                 </View>
                 <View style={styles.detailItem}>
                   <Ionicons name="speedometer-outline" size={20} color={Colors.primary} />
                   <Text style={styles.detailText}>{weather.pressure}hPa</Text>
-                  <Text style={styles.detailLabel}>Pressure</Text>
+                  <Text style={styles.detailLabel}>{t("weather.pressure")}</Text>
                 </View>
                 <View style={styles.detailItem}>
                   <Ionicons name="flag" size={20} color={Colors.primary} />
                   <Text style={styles.detailText}>{weather.windSpeed}m/s</Text>
-                  <Text style={styles.detailLabel}>Wind</Text>
+                  <Text style={styles.detailLabel}>{t("weather.wind")}</Text>
                 </View>
               </View>
             </View>
@@ -179,25 +219,47 @@ export default function WeatherScreen() {
                   />
                   <View style={styles.forecastTempContainer}>
                     <Text style={styles.forecastTemp}>{Math.round(day.temp)}°</Text>
-                    <Text style={styles.forecastDesc}>{day.desc}</Text>
+                    <Text style={styles.forecastDesc}>
+                      {t(`weather.conditions.${day.desc}`, { defaultValue: day.desc })}
+                    </Text>
                   </View>
                 </View>
               ))}
             </View>
 
-            {/* Farming Advice based on Weather */}
-            {weather && (
-              <View style={styles.adviceContainer}>
-                <Text style={styles.adviceTitle}>{t("weather.advice")}</Text>
-                <Text style={styles.adviceText}>
-                  {weather.desc.toLowerCase().includes('rain')
-                    ? t("weather.adviceRain")
-                    : weather.temp > 30
-                      ? t("weather.adviceHot")
-                      : t("weather.adviceModerate")
-                  }
-                </Text>
-              </View>
+            {/* Intelligent Farming Advisories */}
+            {advisories.length > 0 && (
+              <>
+                <Text style={styles.sectionTitle}>{t("weather.advisories")}</Text>
+                {advisories.map((advisory, index) => (
+                  <View 
+                    key={index} 
+                    style={[
+                      styles.advisoryCard,
+                      { borderLeftColor: advisory.color, borderLeftWidth: 4 }
+                    ]}
+                  >
+                    <View style={styles.advisoryHeader}>
+                      <Ionicons name={advisory.icon as any} size={24} color={advisory.color} />
+                      <View style={styles.advisoryHeaderText}>
+                        <Text style={styles.advisoryTitle}>{t(advisory.titleKey)}</Text>
+                        <Text style={[
+                          styles.advisoryPriority,
+                          { color: getPriorityColor(advisory.priority) }
+                        ]}>
+                          {t(`weather.priority.${advisory.priority}`)}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={styles.advisoryMessage}>{t(advisory.messageKey)}</Text>
+                    <View style={styles.advisoryCategory}>
+                      <Text style={styles.advisoryCategoryText}>
+                        {t(`weather.categories.${advisory.category}`)}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </>
             )}
           </>
         )}
@@ -369,21 +431,53 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textTransform: "capitalize",
   },
-  adviceContainer: {
+  advisoryCard: {
     backgroundColor: Colors.white,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  adviceTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: Colors.primary,
+  advisoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+    gap: 12,
+  },
+  advisoryHeaderText: {
+    flex: 1,
+  },
+  advisoryTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.text,
+    marginBottom: 4,
+  },
+  advisoryPriority: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  advisoryMessage: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    lineHeight: 20,
     marginBottom: 12,
   },
-  adviceText: {
-    fontSize: 14,
-    color: Colors.text,
-    lineHeight: 20,
+  advisoryCategory: {
+    alignSelf: 'flex-start',
+    backgroundColor: Colors.background,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  advisoryCategoryText: {
+    fontSize: 12,
+    color: Colors.primary,
+    fontWeight: '500',
   },
 });

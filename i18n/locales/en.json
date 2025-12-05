@@ -76,10 +76,78 @@
     "pressure": "Pressure",
     "wind": "Wind",
     "threeDay": "3-Day Forecast",
-    "advice": "🌱 Farming Advice",
-    "adviceRain": "Good time for irrigation. Consider soil moisture levels before additional watering.",
-    "adviceHot": "High temperatures detected. Ensure proper irrigation and consider shade for sensitive crops.",
-    "adviceModerate": "Moderate weather conditions. Good time for planting and field activities."
+    "advisories": "Farming Advisories",
+    "conditions": {
+      "clear sky": "clear sky",
+      "few clouds": "few clouds",
+      "scattered clouds": "scattered clouds",
+      "broken clouds": "broken clouds",
+      "overcast clouds": "overcast clouds",
+      "light rain": "light rain",
+      "moderate rain": "moderate rain",
+      "heavy rain": "heavy rain",
+      "thunderstorm": "thunderstorm",
+      "mist": "mist",
+      "fog": "fog",
+      "haze": "haze"
+    },
+    "priority": {
+      "high": "HIGH PRIORITY",
+      "medium": "MEDIUM PRIORITY",
+      "low": "LOW PRIORITY"
+    },
+    "categories": {
+      "irrigation": "Irrigation",
+      "pest": "Pest Control",
+      "spraying": "Spraying",
+      "harvesting": "Harvesting"
+    },
+    "messages": {
+      "stopIrrigation": {
+        "title": "Stop Irrigation",
+        "message": "Rain expected (>10mm). Do not water your fields for the next 48 hours to conserve groundwater. Natural rain will be sufficient."
+      },
+      "increaseWatering": {
+        "title": "Increase Watering",
+        "message": "High temperature and low humidity detected. Water your crops in the cooler early morning or late evening hours to prevent water loss through evaporation."
+      },
+      "checkDrainage": {
+        "title": "Check Drainage",
+        "message": "Recent rain with high humidity. Inspect your fields for standing water. Ensure proper drainage channels are clear to prevent root rot and disease."
+      },
+      "fungicideAlert": {
+        "title": "Fungicide Alert",
+        "message": "High humidity for multiple days increases the risk of fungal disease. Consider preventive fungicide application, especially for sensitive crops."
+      },
+      "coldStress": {
+        "title": "Cold Stress Warning",
+        "message": "Temperature drop expected. Cover young, sensitive plants (like vegetables) with mulch or cloth to protect them from potential frost damage."
+      },
+      "pestInspection": {
+        "title": "Pest Inspection",
+        "message": "Sunny, dry weather can favor certain pests (e.g., spider mites). Inspect the undersides of leaves carefully."
+      },
+      "postponeSpraying": {
+        "title": "Postpone Spraying",
+        "message": "Wind is too high (>15 km/h). Applying treatments now will lead to drift, wasting material and potentially harming nearby fields. Wait until the wind calms."
+      },
+      "doNotSpray": {
+        "title": "Do Not Spray",
+        "message": "Rain expected within 6-12 hours. Applying fertilizers or pesticides now will result in them being washed away, greatly reducing effectiveness."
+      },
+      "bestTimeSpray": {
+        "title": "Best Time to Spray",
+        "message": "Optimal conditions detected: low wind and no rain forecasted for 12+ hours. Apply treatments now for maximum efficacy and minimal drift."
+      },
+      "accelerateHarvest": {
+        "title": "Accelerate Harvest",
+        "message": "Heavy rain or storm forecasted in the next 48 hours. Harvest mature crops immediately and move them to dry storage to prevent physical damage or spoilage."
+      },
+      "checkMoisture": {
+        "title": "Check Moisture Levels",
+        "message": "Recent rain with high humidity. Do not store grain or pulses until completely dry. High moisture leads to quick spoilage and mold growth in storage."
+      }
+    }
   },
   "detection": {
     "title": "Crop Disease Detection 🌱",
